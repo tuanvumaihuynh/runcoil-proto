@@ -30,11 +30,14 @@ const (
 // Asks for one Run of a Task. A repeat with the same key and input returns the same Run.
 type InvokeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Task  *TaskRef               `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
+	// The worker ID that owns the Task. Required: the server refuses an empty one with an invalid-argument error.
+	WorkerId string `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3" json:"worker_id,omitempty"`
+	// The ID of the Task, under its worker ID. Required: the server refuses an empty one with an invalid-argument error.
+	TaskId string `protobuf:"bytes,2,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	// JSON. Opaque to the server.
-	Input []byte `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty"`
+	Input []byte `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
 	// Free text, at most 255 characters. Required: the server refuses an empty key with an invalid-argument error.
-	IdempotencyKey string `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	IdempotencyKey string `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -69,11 +72,18 @@ func (*InvokeRequest) Descriptor() ([]byte, []int) {
 	return file_runcoil_v1_runs_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *InvokeRequest) GetTask() *TaskRef {
+func (x *InvokeRequest) GetWorkerId() string {
 	if x != nil {
-		return x.Task
+		return x.WorkerId
 	}
-	return nil
+	return ""
+}
+
+func (x *InvokeRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 func (x *InvokeRequest) GetInput() []byte {
@@ -756,16 +766,19 @@ func (x *ListTasksResponse) GetTasks() []*TaskInfo {
 
 // A registered Task, with its schedule, retry policy, and next tick.
 type TaskInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Task          *TaskRef               `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
-	Schedule      *Schedule              `protobuf:"bytes,2,opt,name=schedule,proto3" json:"schedule,omitempty"`
-	Retry         *RetryPolicy           `protobuf:"bytes,3,opt,name=retry,proto3" json:"retry,omitempty"`
-	StartDeadline *durationpb.Duration   `protobuf:"bytes,4,opt,name=start_deadline,json=startDeadline,proto3" json:"start_deadline,omitempty"`
-	RegisteredAt  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=registered_at,json=registeredAt,proto3" json:"registered_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The worker ID the Task is registered under.
+	WorkerId string `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3" json:"worker_id,omitempty"`
+	// The ID of the Task, under its worker ID.
+	TaskId        string                 `protobuf:"bytes,2,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Schedule      *Schedule              `protobuf:"bytes,3,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	Retry         *RetryPolicy           `protobuf:"bytes,4,opt,name=retry,proto3" json:"retry,omitempty"`
+	StartDeadline *durationpb.Duration   `protobuf:"bytes,5,opt,name=start_deadline,json=startDeadline,proto3" json:"start_deadline,omitempty"`
+	RegisteredAt  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=registered_at,json=registeredAt,proto3" json:"registered_at,omitempty"`
 	// Next tick of the schedule.
-	NextRunAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=next_run_at,json=nextRunAt,proto3" json:"next_run_at,omitempty"`
+	NextRunAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=next_run_at,json=nextRunAt,proto3" json:"next_run_at,omitempty"`
 	// Connected instances of this worker ID that registered this Task.
-	ReadyWorkers  uint32 `protobuf:"varint,7,opt,name=ready_workers,json=readyWorkers,proto3" json:"ready_workers,omitempty"`
+	ReadyWorkers  uint32 `protobuf:"varint,8,opt,name=ready_workers,json=readyWorkers,proto3" json:"ready_workers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -800,11 +813,18 @@ func (*TaskInfo) Descriptor() ([]byte, []int) {
 	return file_runcoil_v1_runs_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *TaskInfo) GetTask() *TaskRef {
+func (x *TaskInfo) GetWorkerId() string {
 	if x != nil {
-		return x.Task
+		return x.WorkerId
 	}
-	return nil
+	return ""
+}
+
+func (x *TaskInfo) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 func (x *TaskInfo) GetSchedule() *Schedule {
@@ -854,11 +874,12 @@ var File_runcoil_v1_runs_proto protoreflect.FileDescriptor
 const file_runcoil_v1_runs_proto_rawDesc = "" +
 	"\n" +
 	"\x15runcoil/v1/runs.proto\x12\n" +
-	"runcoil.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17runcoil/v1/common.proto\"w\n" +
-	"\rInvokeRequest\x12'\n" +
-	"\x04task\x18\x01 \x01(\v2\x13.runcoil.v1.TaskRefR\x04task\x12\x14\n" +
-	"\x05input\x18\x02 \x01(\fR\x05input\x12'\n" +
-	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"K\n" +
+	"runcoil.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17runcoil/v1/common.proto\"\x84\x01\n" +
+	"\rInvokeRequest\x12\x1b\n" +
+	"\tworker_id\x18\x01 \x01(\tR\bworkerId\x12\x17\n" +
+	"\atask_id\x18\x02 \x01(\tR\x06taskId\x12\x14\n" +
+	"\x05input\x18\x03 \x01(\fR\x05input\x12'\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\"K\n" +
 	"\x0eInvokeResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\"\n" +
 	"\fdeduplicated\x18\x02 \x01(\bR\fdeduplicated\"~\n" +
@@ -899,15 +920,16 @@ const file_runcoil_v1_runs_proto_rawDesc = "" +
 	"\x10ListTasksRequest\x12\x1b\n" +
 	"\tworker_id\x18\x01 \x01(\tR\bworkerId\"?\n" +
 	"\x11ListTasksResponse\x12*\n" +
-	"\x05tasks\x18\x01 \x03(\v2\x14.runcoil.v1.TaskInfoR\x05tasks\"\xf8\x02\n" +
-	"\bTaskInfo\x12'\n" +
-	"\x04task\x18\x01 \x01(\v2\x13.runcoil.v1.TaskRefR\x04task\x120\n" +
-	"\bschedule\x18\x02 \x01(\v2\x14.runcoil.v1.ScheduleR\bschedule\x12-\n" +
-	"\x05retry\x18\x03 \x01(\v2\x17.runcoil.v1.RetryPolicyR\x05retry\x12@\n" +
-	"\x0estart_deadline\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\rstartDeadline\x12?\n" +
-	"\rregistered_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fregisteredAt\x12:\n" +
-	"\vnext_run_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tnextRunAt\x12#\n" +
-	"\rready_workers\x18\a \x01(\rR\freadyWorkers2\xa1\x03\n" +
+	"\x05tasks\x18\x01 \x03(\v2\x14.runcoil.v1.TaskInfoR\x05tasks\"\x85\x03\n" +
+	"\bTaskInfo\x12\x1b\n" +
+	"\tworker_id\x18\x01 \x01(\tR\bworkerId\x12\x17\n" +
+	"\atask_id\x18\x02 \x01(\tR\x06taskId\x120\n" +
+	"\bschedule\x18\x03 \x01(\v2\x14.runcoil.v1.ScheduleR\bschedule\x12-\n" +
+	"\x05retry\x18\x04 \x01(\v2\x17.runcoil.v1.RetryPolicyR\x05retry\x12@\n" +
+	"\x0estart_deadline\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\rstartDeadline\x12?\n" +
+	"\rregistered_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fregisteredAt\x12:\n" +
+	"\vnext_run_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tnextRunAt\x12#\n" +
+	"\rready_workers\x18\b \x01(\rR\freadyWorkers2\xa1\x03\n" +
 	"\n" +
 	"RunService\x12?\n" +
 	"\x06Invoke\x12\x19.runcoil.v1.InvokeRequest\x1a\x1a.runcoil.v1.InvokeResponse\x12?\n" +
@@ -947,47 +969,44 @@ var file_runcoil_v1_runs_proto_goTypes = []any{
 	(*ListTasksRequest)(nil),      // 10: runcoil.v1.ListTasksRequest
 	(*ListTasksResponse)(nil),     // 11: runcoil.v1.ListTasksResponse
 	(*TaskInfo)(nil),              // 12: runcoil.v1.TaskInfo
-	(*TaskRef)(nil),               // 13: runcoil.v1.TaskRef
-	(*Run)(nil),                   // 14: runcoil.v1.Run
-	(*durationpb.Duration)(nil),   // 15: google.protobuf.Duration
-	(RunStatus)(0),                // 16: runcoil.v1.RunStatus
-	(*timestamppb.Timestamp)(nil), // 17: google.protobuf.Timestamp
-	(*Schedule)(nil),              // 18: runcoil.v1.Schedule
-	(*RetryPolicy)(nil),           // 19: runcoil.v1.RetryPolicy
+	(*Run)(nil),                   // 13: runcoil.v1.Run
+	(*durationpb.Duration)(nil),   // 14: google.protobuf.Duration
+	(RunStatus)(0),                // 15: runcoil.v1.RunStatus
+	(*timestamppb.Timestamp)(nil), // 16: google.protobuf.Timestamp
+	(*Schedule)(nil),              // 17: runcoil.v1.Schedule
+	(*RetryPolicy)(nil),           // 18: runcoil.v1.RetryPolicy
 }
 var file_runcoil_v1_runs_proto_depIdxs = []int32{
-	13, // 0: runcoil.v1.InvokeRequest.task:type_name -> runcoil.v1.TaskRef
-	14, // 1: runcoil.v1.GetRunResponse.run:type_name -> runcoil.v1.Run
-	15, // 2: runcoil.v1.WaitRunRequest.timeout:type_name -> google.protobuf.Duration
-	14, // 3: runcoil.v1.WaitRunResponse.run:type_name -> runcoil.v1.Run
-	16, // 4: runcoil.v1.ListRunsRequest.statuses:type_name -> runcoil.v1.RunStatus
-	17, // 5: runcoil.v1.ListRunsRequest.created_after:type_name -> google.protobuf.Timestamp
-	17, // 6: runcoil.v1.ListRunsRequest.created_before:type_name -> google.protobuf.Timestamp
-	14, // 7: runcoil.v1.ListRunsResponse.runs:type_name -> runcoil.v1.Run
-	12, // 8: runcoil.v1.ListTasksResponse.tasks:type_name -> runcoil.v1.TaskInfo
-	13, // 9: runcoil.v1.TaskInfo.task:type_name -> runcoil.v1.TaskRef
-	18, // 10: runcoil.v1.TaskInfo.schedule:type_name -> runcoil.v1.Schedule
-	19, // 11: runcoil.v1.TaskInfo.retry:type_name -> runcoil.v1.RetryPolicy
-	15, // 12: runcoil.v1.TaskInfo.start_deadline:type_name -> google.protobuf.Duration
-	17, // 13: runcoil.v1.TaskInfo.registered_at:type_name -> google.protobuf.Timestamp
-	17, // 14: runcoil.v1.TaskInfo.next_run_at:type_name -> google.protobuf.Timestamp
-	0,  // 15: runcoil.v1.RunService.Invoke:input_type -> runcoil.v1.InvokeRequest
-	2,  // 16: runcoil.v1.RunService.GetRun:input_type -> runcoil.v1.GetRunRequest
-	4,  // 17: runcoil.v1.RunService.WaitRun:input_type -> runcoil.v1.WaitRunRequest
-	6,  // 18: runcoil.v1.RunService.ListRuns:input_type -> runcoil.v1.ListRunsRequest
-	8,  // 19: runcoil.v1.RunService.Rerun:input_type -> runcoil.v1.RerunRequest
-	10, // 20: runcoil.v1.RunService.ListTasks:input_type -> runcoil.v1.ListTasksRequest
-	1,  // 21: runcoil.v1.RunService.Invoke:output_type -> runcoil.v1.InvokeResponse
-	3,  // 22: runcoil.v1.RunService.GetRun:output_type -> runcoil.v1.GetRunResponse
-	5,  // 23: runcoil.v1.RunService.WaitRun:output_type -> runcoil.v1.WaitRunResponse
-	7,  // 24: runcoil.v1.RunService.ListRuns:output_type -> runcoil.v1.ListRunsResponse
-	9,  // 25: runcoil.v1.RunService.Rerun:output_type -> runcoil.v1.RerunResponse
-	11, // 26: runcoil.v1.RunService.ListTasks:output_type -> runcoil.v1.ListTasksResponse
-	21, // [21:27] is the sub-list for method output_type
-	15, // [15:21] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	13, // 0: runcoil.v1.GetRunResponse.run:type_name -> runcoil.v1.Run
+	14, // 1: runcoil.v1.WaitRunRequest.timeout:type_name -> google.protobuf.Duration
+	13, // 2: runcoil.v1.WaitRunResponse.run:type_name -> runcoil.v1.Run
+	15, // 3: runcoil.v1.ListRunsRequest.statuses:type_name -> runcoil.v1.RunStatus
+	16, // 4: runcoil.v1.ListRunsRequest.created_after:type_name -> google.protobuf.Timestamp
+	16, // 5: runcoil.v1.ListRunsRequest.created_before:type_name -> google.protobuf.Timestamp
+	13, // 6: runcoil.v1.ListRunsResponse.runs:type_name -> runcoil.v1.Run
+	12, // 7: runcoil.v1.ListTasksResponse.tasks:type_name -> runcoil.v1.TaskInfo
+	17, // 8: runcoil.v1.TaskInfo.schedule:type_name -> runcoil.v1.Schedule
+	18, // 9: runcoil.v1.TaskInfo.retry:type_name -> runcoil.v1.RetryPolicy
+	14, // 10: runcoil.v1.TaskInfo.start_deadline:type_name -> google.protobuf.Duration
+	16, // 11: runcoil.v1.TaskInfo.registered_at:type_name -> google.protobuf.Timestamp
+	16, // 12: runcoil.v1.TaskInfo.next_run_at:type_name -> google.protobuf.Timestamp
+	0,  // 13: runcoil.v1.RunService.Invoke:input_type -> runcoil.v1.InvokeRequest
+	2,  // 14: runcoil.v1.RunService.GetRun:input_type -> runcoil.v1.GetRunRequest
+	4,  // 15: runcoil.v1.RunService.WaitRun:input_type -> runcoil.v1.WaitRunRequest
+	6,  // 16: runcoil.v1.RunService.ListRuns:input_type -> runcoil.v1.ListRunsRequest
+	8,  // 17: runcoil.v1.RunService.Rerun:input_type -> runcoil.v1.RerunRequest
+	10, // 18: runcoil.v1.RunService.ListTasks:input_type -> runcoil.v1.ListTasksRequest
+	1,  // 19: runcoil.v1.RunService.Invoke:output_type -> runcoil.v1.InvokeResponse
+	3,  // 20: runcoil.v1.RunService.GetRun:output_type -> runcoil.v1.GetRunResponse
+	5,  // 21: runcoil.v1.RunService.WaitRun:output_type -> runcoil.v1.WaitRunResponse
+	7,  // 22: runcoil.v1.RunService.ListRuns:output_type -> runcoil.v1.ListRunsResponse
+	9,  // 23: runcoil.v1.RunService.Rerun:output_type -> runcoil.v1.RerunResponse
+	11, // 24: runcoil.v1.RunService.ListTasks:output_type -> runcoil.v1.ListTasksResponse
+	19, // [19:25] is the sub-list for method output_type
+	13, // [13:19] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_runcoil_v1_runs_proto_init() }

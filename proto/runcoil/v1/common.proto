@@ -7,12 +7,6 @@ package runcoil.v1;
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-// A Task is identified by the worker ID that owns it and its Task ID.
-message TaskRef {
-  string worker_id = 1;
-  string task_id = 2;
-}
-
 // RetryPolicy of a Task or a Step. A zero field means the server's default.
 message RetryPolicy {
   // Attempts in total, the first one included.
@@ -130,36 +124,39 @@ message StepRecord {
 // Run is a snapshot of one Run.
 message Run {
   string run_id = 1;
-  TaskRef task = 2;
-  RunStatus status = 3;
+  // The worker ID that owns the Task of this Run.
+  string worker_id = 2;
+  // The ID of the Task of this Run, under its worker ID.
+  string task_id = 3;
+  RunStatus status = 4;
   // Set while status is QUEUED.
-  QueuedReason queued_reason = 4;
+  QueuedReason queued_reason = 5;
   // True when the status will not change. Lets an older client handle a status it does not know.
-  bool terminal = 5;
-  RunSource source = 6;
+  bool terminal = 6;
+  RunSource source = 7;
   // Attempts started so far.
-  uint32 attempts = 7;
+  uint32 attempts = 8;
   // JSON. Opaque to the server.
-  bytes input = 8;
+  bytes input = 9;
   // JSON, set when the Run succeeded.
-  bytes output = 9;
+  bytes output = 10;
   // Set when the Run failed.
-  Failure failure = 10;
-  google.protobuf.Timestamp created_at = 11;
+  Failure failure = 11;
+  google.protobuf.Timestamp created_at = 12;
   // When the Run was due: the schedule's tick, or the time of acceptance.
-  google.protobuf.Timestamp due_at = 12;
+  google.protobuf.Timestamp due_at = 13;
   // When the first attempt was acknowledged by a worker.
-  google.protobuf.Timestamp started_at = 13;
-  google.protobuf.Timestamp finished_at = 14;
+  google.protobuf.Timestamp started_at = 14;
+  google.protobuf.Timestamp finished_at = 15;
   // Earliest start of the next attempt, while queued for a retry.
-  google.protobuf.Timestamp next_attempt_at = 15;
+  google.protobuf.Timestamp next_attempt_at = 16;
   // The Run this one reruns.
-  string rerun_of = 16;
+  string rerun_of = 17;
   // Instance that holds the attempt. Kept when the Run finishes, except after ATTEMPT_LOST;
   // empty while the Run is queued.
-  string instance_id = 17;
+  string instance_id = 18;
   // Filled only when the request asks for Steps.
-  repeated StepRecord steps = 18;
+  repeated StepRecord steps = 19;
 }
 
 // ErrorCode is carried in the details of a failed RPC, beside the transport's code.

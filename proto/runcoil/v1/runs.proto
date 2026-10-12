@@ -32,11 +32,14 @@ service RunService {
 
 // Asks for one Run of a Task. A repeat with the same key and input returns the same Run.
 message InvokeRequest {
-  TaskRef task = 1;
+  // The worker ID that owns the Task. Required: the server refuses an empty one with an invalid-argument error.
+  string worker_id = 1;
+  // The ID of the Task, under its worker ID. Required: the server refuses an empty one with an invalid-argument error.
+  string task_id = 2;
   // JSON. Opaque to the server.
-  bytes input = 2;
+  bytes input = 3;
   // Free text, at most 255 characters. Required: the server refuses an empty key with an invalid-argument error.
-  string idempotency_key = 3;
+  string idempotency_key = 4;
 }
 
 // The Run the request created, or the Run that its key created before.
@@ -125,13 +128,16 @@ message ListTasksResponse {
 
 // A registered Task, with its schedule, retry policy, and next tick.
 message TaskInfo {
-  TaskRef task = 1;
-  Schedule schedule = 2;
-  RetryPolicy retry = 3;
-  google.protobuf.Duration start_deadline = 4;
-  google.protobuf.Timestamp registered_at = 5;
+  // The worker ID the Task is registered under.
+  string worker_id = 1;
+  // The ID of the Task, under its worker ID.
+  string task_id = 2;
+  Schedule schedule = 3;
+  RetryPolicy retry = 4;
+  google.protobuf.Duration start_deadline = 5;
+  google.protobuf.Timestamp registered_at = 6;
   // Next tick of the schedule.
-  google.protobuf.Timestamp next_run_at = 6;
+  google.protobuf.Timestamp next_run_at = 7;
   // Connected instances of this worker ID that registered this Task.
-  uint32 ready_workers = 7;
+  uint32 ready_workers = 8;
 }
