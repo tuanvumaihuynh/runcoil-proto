@@ -1,0 +1,15 @@
+# Generated Go code is committed under gen/. Plugin versions are pinned here and
+# must match the requirements in go.mod (google.golang.org/protobuf, connectrpc.com/connect).
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/tuanvumaihuynh/runcoil-proto/gen
+plugins:
+  - local: ["go", "run", "google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12"]
+    out: gen
+    opt: paths=source_relative
+  - local: ["go", "run", "connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.21.0"]
+    out: gen
+    opt: paths=source_relative

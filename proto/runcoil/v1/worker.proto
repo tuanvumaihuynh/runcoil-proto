@@ -1,0 +1,259 @@
+// What a worker says to the server and receives from it.
+// The worker opens every connection. Credentials travel in the Authorization header.
+syntax = "proto3";
+
+package runcoil.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "runcoil/v1/common.proto";
+
+service WorkerService {
+  // Register declares the Tasks of one worker process. All-or-nothing: one invalid
+  // Task registers nothing. Idempotent by instance_id; a resend replaces the last one.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Listen is the only stream. The worker opens it and the server pushes on it.
+  //
+  // 1. The server dispatches only to an instance with an open stream. A second
+  //    Listen for the same instance replaces the first.
+  // 2. The server sends keepalive at the heartbeat interval. A worker that receives
+  //    nothing for the lease duration opens a new stream.
+  // 3. When the stream ends, the server stops dispatching to this worker at once.
+  //    Attempts it holds keep their leases. A worker that shuts down closes the
+  //    stream first and then finishes what it holds.
+  // 4. An instance the server does not know gets NOT_REGISTERED; the worker
+  //    calls Register and listens again.
+  rpc Listen(ListenRequest) returns (stream ListenResponse);
+
+  // Heartbeat shows the worker is alive and renews the leases it names. Sent at the
+  // heartbeat interval from the time the worker starts. When none arrives
+  // for the lease duration, the server ends the worker's stream and its leases expire.
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+
+  // AckDispatch says the worker received a dispatch and now owns the attempt. Called
+  // before the handler starts. A dispatch never acked is given back when its lease
+  // expires, without using a try.
+  // Fails with STALE_LEASE when the attempt is no longer this worker's; the handler
+  // does not run. Idempotent by Run and lease token.
+  rpc AckDispatch(AckDispatchRequest) returns (AckDispatchResponse);
+
+  // RecordStep stores the outcome of one try of one Step and answers after the commit.
+  // Idempotent by Run, Step, and Step attempt.
+  rpc RecordStep(RecordStepRequest) returns (RecordStepResponse);
+
+  // FinishRun ends this worker's attempt of a Run: the handler returned, or the worker gives the Run back.
+  // Idempotent by Run and attempt.
+  rpc FinishRun(FinishRunRequest) returns (FinishRunResponse);
+}
+
+// One Task that a worker declares in a Register call.
+message TaskDefinition {
+  string task_id = 1;
+  // Unset: the Task has no schedule, and an earlier schedule of this Task is removed.
+  Schedule schedule = 2;
+  // Unset: the server's default policy.
+  RetryPolicy retry = 3;
+  // Unset: a late Run still runs.
+  google.protobuf.Duration start_deadline = 4;
+}
+
+// The Tasks of one worker process, and how many attempts it runs at once.
+message RegisterRequest {
+  // The name the application gives its worker. Every process that runs the same
+  // Tasks uses the same worker ID.
+  string worker_id = 1;
+  // Chosen by the SDK once per Worker value. Names that Worker in Listen
+  // and Heartbeat.
+  string instance_id = 2;
+  repeated TaskDefinition tasks = 3;
+  // Attempts this worker runs at one time. The server never gives it more.
+  uint32 max_concurrent_attempts = 4;
+  uint32 protocol_version = 5;
+  string sdk_name = 6;
+  string sdk_version = 7;
+}
+
+// The timing that the server sets for the registered instance.
+message RegisterResponse {
+  google.protobuf.Duration heartbeat_interval = 1;
+  // A lease not renewed for this long is lost.
+  google.protobuf.Duration lease_duration = 2;
+}
+
+// Opens the Listen stream of a registered instance.
+message ListenRequest {
+  string instance_id = 1;
+}
+
+// One message on the Listen stream: a dispatch, a cancel, or a keepalive.
+message ListenResponse {
+  oneof message {
+    Dispatch dispatch = 1;
+    CancelAttempt cancel = 2;
+    Keepalive keepalive = 3;
+  }
+}
+
+// Keepalive carries nothing. It keeps proxies from closing a quiet stream and
+// lets the worker notice a dead one.
+message Keepalive {}
+
+// The attempts that one instance is running, to renew their leases.
+message HeartbeatRequest {
+  string instance_id = 1;
+  // Every attempt the worker is running.
+  repeated AttemptRef attempts = 2;
+}
+
+// One attempt, named by its Run and lease token. In a heartbeat, also the Step it runs.
+message AttemptRef {
+  string run_id = 1;
+  string lease_token = 2;
+  // In a heartbeat: the Step whose function is running now, if any. When the
+  // worker is lost, the server counts the lost attempt as a failed try of this Step.
+  string step_id = 3;
+  // Try of that Step, from 1.
+  uint32 step_attempt = 4;
+  // That Step's own policy, when it has one. Used to decide a retry after a loss.
+  RetryPolicy retry = 5;
+}
+
+// The attempts whose lease is no longer valid, and when the renewed leases expire.
+message HeartbeatResponse {
+  // Attempts in the request whose lease is no longer valid. Stop their handlers.
+  repeated AttemptRef stale = 1;
+  google.protobuf.Timestamp leases_expire_at = 2;
+}
+
+// The attempt that the worker received.
+message AckDispatchRequest {
+  string run_id = 1;
+  string lease_token = 2;
+}
+
+// Empty: the attempt is acknowledged.
+message AckDispatchResponse {}
+
+// Dispatch gives one attempt of one Run to the worker.
+message Dispatch {
+  string run_id = 1;
+  // Number of this attempt, from 1.
+  uint32 attempt = 2;
+  // Proves that a later report belongs to this attempt.
+  string lease_token = 3;
+  google.protobuf.Timestamp lease_expires_at = 4;
+  string task_id = 5;
+  // JSON. Opaque to the server.
+  bytes input = 6;
+  RunSource source = 7;
+  // When the Run was due. For a scheduled Run, the tick.
+  google.protobuf.Timestamp due_at = 8;
+  // Steps recorded on earlier attempts. Replay reads them and calls nothing.
+  repeated StepRecord steps = 9;
+  // Steps that have failed tries and no record yet.
+  repeated StepProgress progress = 10;
+}
+
+// A Step with failed tries and no final record yet.
+message StepProgress {
+  string step_id = 1;
+  // Tries already used. The next report of this Step carries this number plus one.
+  uint32 attempts_used = 2;
+}
+
+// CancelAttempt tells the worker to stop a handler whose result will not be accepted.
+message CancelAttempt {
+  string run_id = 1;
+  string lease_token = 2;
+}
+
+// One try of one Step: its outcome, and the Step's own retry policy.
+message RecordStepRequest {
+  string run_id = 1;
+  string lease_token = 2;
+  string step_id = 3;
+  // Try of this Step, from 1.
+  uint32 step_attempt = 4;
+  oneof outcome {
+    StepSucceeded succeeded = 5;
+    AttemptError failed = 6;
+  }
+  // The Step's own policy. Unset: the Task's policy.
+  RetryPolicy retry = 7;
+}
+
+// The output of a Step try that succeeded.
+message StepSucceeded {
+  // JSON. Opaque to the server.
+  bytes output = 1;
+}
+
+// AttemptError is one failed try of a Step, or a handler error outside any Step.
+message AttemptError {
+  string message = 1;
+  // Do not retry.
+  bool permanent = 2;
+  // Replaces the policy's delay for the next try.
+  google.protobuf.Duration retry_after = 3;
+  // ERROR, PANIC, or OUTPUT_NOT_ENCODABLE. The last two are never retried.
+  FailureCode code = 4;
+}
+
+// The stored record of the Step, or the retry scheduled for its next try.
+message RecordStepResponse {
+  oneof result {
+    // The Step is finished and stored. The handler continues with this record.
+    // A Step that failed for good, or whose output was over a limit, arrives here as FAILED.
+    StepRecord recorded = 1;
+    // The Step will be tried again. The attempt is over: stop the handler and free the slot.
+    RetryScheduled retry = 2;
+  }
+}
+
+// A try that will be retried: the earliest start, and the tries used so far.
+message RetryScheduled {
+  // Earliest start of the next attempt.
+  google.protobuf.Timestamp not_before = 1;
+  uint32 attempts_used = 2;
+}
+
+// Ends the worker's attempt of a Run with its result.
+message FinishRunRequest {
+  string run_id = 1;
+  string lease_token = 2;
+  oneof result {
+    RunSucceeded succeeded = 3;
+    HandlerFailed failed = 4;
+    // The worker is shutting down and gives the Run back.
+    Released released = 5;
+  }
+}
+
+// The output that the handler returned for the Run.
+message RunSucceeded {
+  // JSON. Opaque to the server.
+  bytes output = 1;
+}
+
+// A handler error that ends an attempt, with the Step it came from, if any.
+message HandlerFailed {
+  AttemptError error = 1;
+  // Names the Step whose error the handler returned. The Run fails without a retry when that
+  // Step already has a failed record; otherwise the retry policy applies.
+  string step_id = 2;
+}
+
+// The worker gives the Run back. The attempt ends and uses no try.
+message Released {}
+
+// The Run once the attempt has ended, or the retry it schedules.
+message FinishRunResponse {
+  oneof result {
+    // The Run is finished. Its status can be FAILED although the handler returned
+    // an output, when that output was over a limit.
+    Run finished = 1;
+    // The Run will be attempted again.
+    RetryScheduled retry = 2;
+  }
+}

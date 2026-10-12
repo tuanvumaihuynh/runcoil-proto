@@ -1,0 +1,197 @@
+// Shared messages of the Runcoil protocol.
+// Field names and numbers may change before version 1.0.
+syntax = "proto3";
+
+package runcoil.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+// A Task is identified by the worker ID that owns it and its Task ID.
+message TaskRef {
+  string worker_id = 1;
+  string task_id = 2;
+}
+
+// RetryPolicy of a Task or a Step. A zero field means the server's default.
+message RetryPolicy {
+  // Attempts in total, the first one included.
+  uint32 max_attempts = 1;
+  // Delay before each retry. The last value repeats.
+  repeated google.protobuf.Duration delays = 2;
+}
+
+// Schedule of a Task. Every schedule is read in UTC.
+message Schedule {
+  oneof kind {
+    // Five-field cron expression.
+    string cron = 1;
+    google.protobuf.Duration every = 2;
+    DailyTimes daily = 3;
+  }
+  // Create no Run for a tick while the previous Run of the schedule is not finished.
+  bool skip_overlap = 4;
+}
+
+// The times of day of a daily Schedule. At least one is required.
+message DailyTimes {
+  repeated TimeOfDay at = 1;
+}
+
+// A clock time in UTC: hour 0 to 23, minute 0 to 59.
+message TimeOfDay {
+  uint32 hour = 1;
+  uint32 minute = 2;
+}
+
+// Where a Run stands: queued, running, succeeded, or failed.
+enum RunStatus {
+  RUN_STATUS_UNSPECIFIED = 0;
+  RUN_STATUS_QUEUED = 1;
+  RUN_STATUS_RUNNING = 2;
+  RUN_STATUS_SUCCEEDED = 3;
+  RUN_STATUS_FAILED = 4;
+}
+
+// Why a Run is queued.
+enum QueuedReason {
+  QUEUED_REASON_UNSPECIFIED = 0;
+  // No connected instance has registered this Task.
+  QUEUED_REASON_WAITING_FOR_WORKER = 1;
+  // Workers are connected and every slot is taken.
+  QUEUED_REASON_WAITING_FOR_CAPACITY = 2;
+  // A failed attempt is waiting for its retry delay.
+  QUEUED_REASON_RETRY_BACKOFF = 3;
+}
+
+// What created a Run.
+enum RunSource {
+  RUN_SOURCE_UNSPECIFIED = 0;
+  RUN_SOURCE_INVOKE = 1;
+  RUN_SOURCE_SCHEDULE = 2;
+  RUN_SOURCE_RERUN = 3;
+}
+
+// Final outcome of a Step: succeeded or failed.
+enum StepStatus {
+  STEP_STATUS_UNSPECIFIED = 0;
+  STEP_STATUS_SUCCEEDED = 1;
+  STEP_STATUS_FAILED = 2;
+}
+
+// Why a Step or a Run failed for good.
+enum FailureCode {
+  FAILURE_CODE_UNSPECIFIED = 0;
+  // The Step function or the handler returned an error and no attempt is left,
+  // or the error was permanent.
+  FAILURE_CODE_ERROR = 1;
+  // The handler panicked.
+  FAILURE_CODE_PANIC = 2;
+  // The handler returned the final error of a Step.
+  FAILURE_CODE_STEP_FAILED = 3;
+  // The worker or its lease was lost and no attempt is left.
+  FAILURE_CODE_ATTEMPT_LOST = 4;
+  // The SDK could not encode an output.
+  FAILURE_CODE_OUTPUT_NOT_ENCODABLE = 5;
+  // An output is over its size limit.
+  FAILURE_CODE_OUTPUT_TOO_LARGE = 6;
+  // The Run's stored data is over its total limit.
+  FAILURE_CODE_RUN_DATA_LIMIT = 7;
+  // No worker was ready within the worker wait limit.
+  FAILURE_CODE_WORKER_WAIT_LIMIT = 8;
+  // The Run did not start within its Task's start deadline.
+  FAILURE_CODE_START_DEADLINE = 9;
+}
+
+// Failure is the final error of a Step or a Run. Only text survives.
+message Failure {
+  FailureCode code = 1;
+  // Text of the last error.
+  string message = 2;
+  // Attempts used. For a Run failure, the attempts of the Run.
+  uint32 attempts = 3;
+  // For a Run failure caused by a Step: that Step.
+  string step_id = 4;
+}
+
+// StepRecord is the stored outcome of one Step of one Run.
+message StepRecord {
+  // A repeated ID arrives numbered by the SDK, as in "charge#2".
+  string step_id = 1;
+  // Order of commit within the Run, from 1. Assigned by the server.
+  uint32 index = 2;
+  StepStatus status = 3;
+  // JSON, set when the Step succeeded. Opaque to the server.
+  bytes output = 4;
+  // Set when the Step failed for good.
+  Failure failure = 5;
+}
+
+// Run is a snapshot of one Run.
+message Run {
+  string run_id = 1;
+  TaskRef task = 2;
+  RunStatus status = 3;
+  // Set while status is QUEUED.
+  QueuedReason queued_reason = 4;
+  // True when the status will not change. Lets an older client handle a status it does not know.
+  bool terminal = 5;
+  RunSource source = 6;
+  // Attempts started so far.
+  uint32 attempts = 7;
+  // JSON. Opaque to the server.
+  bytes input = 8;
+  // JSON, set when the Run succeeded.
+  bytes output = 9;
+  // Set when the Run failed.
+  Failure failure = 10;
+  google.protobuf.Timestamp created_at = 11;
+  // When the Run was due: the schedule's tick, or the time of acceptance.
+  google.protobuf.Timestamp due_at = 12;
+  // When the first attempt was acknowledged by a worker.
+  google.protobuf.Timestamp started_at = 13;
+  google.protobuf.Timestamp finished_at = 14;
+  // Earliest start of the next attempt, while queued for a retry.
+  google.protobuf.Timestamp next_attempt_at = 15;
+  // The Run this one reruns.
+  string rerun_of = 16;
+  // Instance that holds the attempt. Kept when the Run finishes, except after ATTEMPT_LOST;
+  // empty while the Run is queued.
+  string instance_id = 17;
+  // Filled only when the request asks for Steps.
+  repeated StepRecord steps = 18;
+}
+
+// ErrorCode is carried in the details of a failed RPC, beside the transport's code.
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  ERROR_CODE_INVALID_REQUEST = 1;
+  ERROR_CODE_UNAUTHENTICATED = 2;
+  ERROR_CODE_INCOMPATIBLE_PROTOCOL = 3;
+  // One Task definition in a registration is invalid; nothing was registered.
+  ERROR_CODE_INVALID_REGISTRATION = 4;
+  // The Task was never registered.
+  ERROR_CODE_TASK_NOT_FOUND = 5;
+  ERROR_CODE_RUN_NOT_FOUND = 6;
+  // Same idempotency key, different request.
+  ERROR_CODE_IDEMPOTENCY_CONFLICT = 7;
+  // Run input is over its size limit.
+  ERROR_CODE_INPUT_TOO_LARGE = 8;
+  // Listen named an instance the server does not know. Register, then listen again.
+  ERROR_CODE_NOT_REGISTERED = 9;
+  // The lease token is no longer the Run's current one. Stop the handler.
+  ERROR_CODE_STALE_LEASE = 10;
+  // A rerun names a Run that is not finished.
+  ERROR_CODE_RUN_NOT_FINISHED = 11;
+  // A rerun names a Step without a final record.
+  ERROR_CODE_STEP_NOT_FOUND = 12;
+}
+
+// Detail of a failed RPC that has an ErrorCode, with the IDs the failure names.
+message ErrorDetail {
+  ErrorCode code = 1;
+  // For IDEMPOTENCY_CONFLICT: the Run that holds the key.
+  string run_id = 2;
+  // For INVALID_REGISTRATION: the Task at fault.
+  string task_id = 3;
+}

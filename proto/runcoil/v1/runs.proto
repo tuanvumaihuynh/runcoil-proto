@@ -1,0 +1,137 @@
+// What a caller or an operator asks of the server.
+// Every request is independent and needs no worker session.
+// Credentials travel in the Authorization header.
+syntax = "proto3";
+
+package runcoil.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "runcoil/v1/common.proto";
+
+service RunService {
+  // Invoke creates a Run of a Task. Answers after the Run and its key are stored.
+  rpc Invoke(InvokeRequest) returns (InvokeResponse);
+
+  // GetRun returns a snapshot, by Run ID or by the idempotency key that created the Run.
+  rpc GetRun(GetRunRequest) returns (GetRunResponse);
+
+  // WaitRun returns when the Run is finished or the timeout passes. An unset timeout,
+  // or one over the server's maximum, waits for the maximum.
+  // A timeout does not affect the Run.
+  rpc WaitRun(WaitRunRequest) returns (WaitRunResponse);
+
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse);
+
+  // Rerun creates a new Run from a finished one, from its start or from a selected Step.
+  rpc Rerun(RerunRequest) returns (RerunResponse);
+
+  // ListTasks returns the registered Tasks of a worker ID, with their schedules.
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+}
+
+// Asks for one Run of a Task. A repeat with the same key and input returns the same Run.
+message InvokeRequest {
+  TaskRef task = 1;
+  // JSON. Opaque to the server.
+  bytes input = 2;
+  // Free text, at most 255 characters. Required: the server refuses an empty key with an invalid-argument error.
+  string idempotency_key = 3;
+}
+
+// The Run the request created, or the Run that its key created before.
+message InvokeResponse {
+  string run_id = 1;
+  // True when the key had already created this Run.
+  bool deduplicated = 2;
+}
+
+// Asks for one Run, by its Run ID or by the idempotency key that created it.
+message GetRunRequest {
+  oneof by {
+    string run_id = 1;
+    string idempotency_key = 2;
+  }
+  bool include_steps = 3;
+}
+
+// The Run that was asked for.
+message GetRunResponse {
+  Run run = 1;
+}
+
+// Waits for one Run to finish, up to the timeout.
+message WaitRunRequest {
+  string run_id = 1;
+  // The server may answer sooner than this with timed_out set; the caller asks again.
+  google.protobuf.Duration timeout = 2;
+  bool include_steps = 3;
+}
+
+// The Run when the wait ends, and whether it timed out.
+message WaitRunResponse {
+  Run run = 1;
+  // True when the Run was not finished at the timeout.
+  bool timed_out = 2;
+}
+
+// Filters and paging of a ListRuns call. Every filter is optional.
+message ListRunsRequest {
+  // Optional filter: empty matches every worker ID.
+  string worker_id = 1;
+  // Optional filter: empty matches every Task ID.
+  string task_id = 2;
+  repeated RunStatus statuses = 3;
+  google.protobuf.Timestamp created_after = 4;
+  google.protobuf.Timestamp created_before = 5;
+  uint32 page_size = 6;
+  string page_token = 7;
+}
+
+// One page of Runs, and the token of the next page.
+message ListRunsResponse {
+  // Newest first, without Steps, input, or output.
+  repeated Run runs = 1;
+  string next_page_token = 2;
+}
+
+// Asks for a new Run from a finished Run, from its start or from a Step.
+message RerunRequest {
+  string run_id = 1;
+  // Unset: start from the beginning with no recorded Step.
+  // Set: keep the Steps recorded before this one. A repeated ID is named by its numbered form.
+  // A Step without a final record is refused, including one that only has failed tries.
+  string from_step_id = 2;
+  // Free text, at most 255 characters. Required: the server refuses an empty key with an invalid-argument error.
+  string idempotency_key = 3;
+}
+
+// The ID of the new Run, and whether the request is a repeat of an earlier one.
+message RerunResponse {
+  string run_id = 1;
+  bool deduplicated = 2;
+}
+
+// Asks for the Tasks registered under one worker ID.
+message ListTasksRequest {
+  // The worker ID whose Tasks are listed. Required: the server refuses an empty one with an invalid-argument error.
+  string worker_id = 1;
+}
+
+// The Tasks registered under the worker ID.
+message ListTasksResponse {
+  repeated TaskInfo tasks = 1;
+}
+
+// A registered Task, with its schedule, retry policy, and next tick.
+message TaskInfo {
+  TaskRef task = 1;
+  Schedule schedule = 2;
+  RetryPolicy retry = 3;
+  google.protobuf.Duration start_deadline = 4;
+  google.protobuf.Timestamp registered_at = 5;
+  // Next tick of the schedule.
+  google.protobuf.Timestamp next_run_at = 6;
+  // Connected instances of this worker ID that registered this Task.
+  uint32 ready_workers = 7;
+}
