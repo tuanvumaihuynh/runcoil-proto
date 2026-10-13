@@ -31,7 +31,6 @@ import (
 - `make format` — `buf format -w` rewrites the `.proto` files.
 - `make generate` — `buf generate` rewrites `gen/`. Run it after every schema change.
 - `make check` — lint, format check, generate, `go build ./...`, `go vet ./...`.
-- `make actionlint` — actionlint on `.github/workflows/`.
 
 Buf and the protoc plugins run through `go run` at the versions pinned in the
 `Makefile` (`BUF_VERSION`) and `buf.gen.yaml`; nothing is installed globally.

@@ -4,9 +4,6 @@
 BUF_VERSION ?= v1.73.0
 BUF = go run github.com/bufbuild/buf/cmd/buf@$(BUF_VERSION)
 
-ACTIONLINT_VERSION ?= v1.7.12
-ACTIONLINT = go run github.com/rhysd/actionlint/cmd/actionlint@$(ACTIONLINT_VERSION)
-
 #########################
 # Lint and format
 #########################
@@ -34,10 +31,3 @@ check: lint
 	$(BUF) generate
 	go build ./...
 	go vet ./...
-
-#########################
-# Workflows
-#########################
-.PHONY: actionlint
-actionlint:
-	$(ACTIONLINT)
