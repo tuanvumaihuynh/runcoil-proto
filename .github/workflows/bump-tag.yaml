@@ -12,6 +12,11 @@ on:
 permissions:
   contents: write
 
+# One run at a time: two runs that read the tags together would pick the same version.
+concurrency:
+  group: bump-tag
+  cancel-in-progress: false
+
 jobs:
   bump-tag:
     name: Bump Tag
