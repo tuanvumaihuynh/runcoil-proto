@@ -1,0 +1,29 @@
+name: Bump Tag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "proto/**"
+      - "gen/**"
+      - "go.mod"
+      - "go.sum"
+
+permissions:
+  contents: write
+
+jobs:
+  bump-tag:
+    name: Bump Tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: anothrNick/github-tag-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_PREFIX: v
+          DEFAULT_BUMP: patch
