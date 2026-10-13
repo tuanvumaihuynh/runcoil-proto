@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   buf:
+    name: Buf
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -32,6 +33,7 @@ jobs:
           pr_comment: false
 
   generate:
+    name: Generated Code
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -49,6 +51,7 @@ jobs:
       - run: go vet ./...
 
   tidy:
+    name: Go Mod Tidy
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
