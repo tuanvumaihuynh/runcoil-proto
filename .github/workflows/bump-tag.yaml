@@ -1,0 +1,34 @@
+name: Bump Tag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "proto/**"
+      - "gen/**"
+      - "go.mod"
+      - "go.sum"
+
+permissions:
+  contents: write
+
+# One run at a time: two runs that read the tags together would pick the same version.
+concurrency:
+  group: bump-tag
+  cancel-in-progress: false
+
+jobs:
+  bump-tag:
+    name: Bump Tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_PREFIX: v
+          DEFAULT_BUMP: patch
