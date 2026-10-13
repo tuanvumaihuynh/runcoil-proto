@@ -9,258 +9,286 @@
 package runcoilv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/tuanvumaihuynh/runcoil-proto/gen/runcoil/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// RunServiceName is the fully-qualified name of the RunService service.
 	RunServiceName = "runcoil.v1.RunService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// RunServiceInvokeProcedure is the fully-qualified name of the RunService's Invoke RPC.
+	// RunServiceInvokeProcedure is the procedure name of the RunService's Invoke RPC.
 	RunServiceInvokeProcedure = "/runcoil.v1.RunService/Invoke"
-	// RunServiceGetRunProcedure is the fully-qualified name of the RunService's GetRun RPC.
+	// RunServiceGetRunProcedure is the procedure name of the RunService's GetRun RPC.
 	RunServiceGetRunProcedure = "/runcoil.v1.RunService/GetRun"
-	// RunServiceWaitRunProcedure is the fully-qualified name of the RunService's WaitRun RPC.
+	// RunServiceWaitRunProcedure is the procedure name of the RunService's WaitRun RPC.
 	RunServiceWaitRunProcedure = "/runcoil.v1.RunService/WaitRun"
-	// RunServiceListRunsProcedure is the fully-qualified name of the RunService's ListRuns RPC.
+	// RunServiceListRunsProcedure is the procedure name of the RunService's ListRuns RPC.
 	RunServiceListRunsProcedure = "/runcoil.v1.RunService/ListRuns"
-	// RunServiceRerunProcedure is the fully-qualified name of the RunService's Rerun RPC.
+	// RunServiceRerunProcedure is the procedure name of the RunService's Rerun RPC.
 	RunServiceRerunProcedure = "/runcoil.v1.RunService/Rerun"
-	// RunServiceListTasksProcedure is the fully-qualified name of the RunService's ListTasks RPC.
+	// RunServiceListTasksProcedure is the procedure name of the RunService's ListTasks RPC.
 	RunServiceListTasksProcedure = "/runcoil.v1.RunService/ListTasks"
+)
+
+var (
+	runServiceInvokeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods().ByName("Invoke"),
+			Procedure:  RunServiceInvokeProcedure,
+		}
+	})
+	runServiceGetRunSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods().ByName("GetRun"),
+			Procedure:  RunServiceGetRunProcedure,
+		}
+	})
+	runServiceWaitRunSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods().ByName("WaitRun"),
+			Procedure:  RunServiceWaitRunProcedure,
+		}
+	})
+	runServiceListRunsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods().ByName("ListRuns"),
+			Procedure:  RunServiceListRunsProcedure,
+		}
+	})
+	runServiceRerunSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods().ByName("Rerun"),
+			Procedure:  RunServiceRerunProcedure,
+		}
+	})
+	runServiceListTasksSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods().ByName("ListTasks"),
+			Procedure:  RunServiceListTasksProcedure,
+		}
+	})
 )
 
 // RunServiceClient is a client for the runcoil.v1.RunService service.
 type RunServiceClient interface {
 	// Invoke creates a Run of a Task. Answers after the Run and its key are stored.
-	Invoke(context.Context, *connect.Request[v1.InvokeRequest]) (*connect.Response[v1.InvokeResponse], error)
+	Invoke(context.Context, *v1.InvokeRequest) (*v1.InvokeResponse, error)
 	// GetRun returns a snapshot, by Run ID or by the idempotency key that created the Run.
-	GetRun(context.Context, *connect.Request[v1.GetRunRequest]) (*connect.Response[v1.GetRunResponse], error)
+	GetRun(context.Context, *v1.GetRunRequest) (*v1.GetRunResponse, error)
 	// WaitRun returns when the Run is finished or the timeout passes. An unset timeout,
 	// or one over the server's maximum, waits for the maximum.
 	// A timeout does not affect the Run.
-	WaitRun(context.Context, *connect.Request[v1.WaitRunRequest]) (*connect.Response[v1.WaitRunResponse], error)
-	ListRuns(context.Context, *connect.Request[v1.ListRunsRequest]) (*connect.Response[v1.ListRunsResponse], error)
+	WaitRun(context.Context, *v1.WaitRunRequest) (*v1.WaitRunResponse, error)
+	ListRuns(context.Context, *v1.ListRunsRequest) (*v1.ListRunsResponse, error)
 	// Rerun creates a new Run from a finished one, from its start or from a selected Step.
-	Rerun(context.Context, *connect.Request[v1.RerunRequest]) (*connect.Response[v1.RerunResponse], error)
+	Rerun(context.Context, *v1.RerunRequest) (*v1.RerunResponse, error)
 	// ListTasks returns the registered Tasks of a worker ID, with their schedules.
-	ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error)
+	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
 }
 
-// NewRunServiceClient constructs a client for the runcoil.v1.RunService service. By default, it
-// uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and sends
-// uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or
-// connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewRunServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) RunServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	runServiceMethods := v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods()
-	return &runServiceClient{
-		invoke: connect.NewClient[v1.InvokeRequest, v1.InvokeResponse](
-			httpClient,
-			baseURL+RunServiceInvokeProcedure,
-			connect.WithSchema(runServiceMethods.ByName("Invoke")),
-			connect.WithClientOptions(opts...),
-		),
-		getRun: connect.NewClient[v1.GetRunRequest, v1.GetRunResponse](
-			httpClient,
-			baseURL+RunServiceGetRunProcedure,
-			connect.WithSchema(runServiceMethods.ByName("GetRun")),
-			connect.WithClientOptions(opts...),
-		),
-		waitRun: connect.NewClient[v1.WaitRunRequest, v1.WaitRunResponse](
-			httpClient,
-			baseURL+RunServiceWaitRunProcedure,
-			connect.WithSchema(runServiceMethods.ByName("WaitRun")),
-			connect.WithClientOptions(opts...),
-		),
-		listRuns: connect.NewClient[v1.ListRunsRequest, v1.ListRunsResponse](
-			httpClient,
-			baseURL+RunServiceListRunsProcedure,
-			connect.WithSchema(runServiceMethods.ByName("ListRuns")),
-			connect.WithClientOptions(opts...),
-		),
-		rerun: connect.NewClient[v1.RerunRequest, v1.RerunResponse](
-			httpClient,
-			baseURL+RunServiceRerunProcedure,
-			connect.WithSchema(runServiceMethods.ByName("Rerun")),
-			connect.WithClientOptions(opts...),
-		),
-		listTasks: connect.NewClient[v1.ListTasksRequest, v1.ListTasksResponse](
-			httpClient,
-			baseURL+RunServiceListTasksProcedure,
-			connect.WithSchema(runServiceMethods.ByName("ListTasks")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// runServiceClient implements RunServiceClient.
-type runServiceClient struct {
-	invoke    *connect.Client[v1.InvokeRequest, v1.InvokeResponse]
-	getRun    *connect.Client[v1.GetRunRequest, v1.GetRunResponse]
-	waitRun   *connect.Client[v1.WaitRunRequest, v1.WaitRunResponse]
-	listRuns  *connect.Client[v1.ListRunsRequest, v1.ListRunsResponse]
-	rerun     *connect.Client[v1.RerunRequest, v1.RerunResponse]
-	listTasks *connect.Client[v1.ListTasksRequest, v1.ListTasksResponse]
-}
-
-// Invoke calls runcoil.v1.RunService.Invoke.
-func (c *runServiceClient) Invoke(ctx context.Context, req *connect.Request[v1.InvokeRequest]) (*connect.Response[v1.InvokeResponse], error) {
-	return c.invoke.CallUnary(ctx, req)
-}
-
-// GetRun calls runcoil.v1.RunService.GetRun.
-func (c *runServiceClient) GetRun(ctx context.Context, req *connect.Request[v1.GetRunRequest]) (*connect.Response[v1.GetRunResponse], error) {
-	return c.getRun.CallUnary(ctx, req)
-}
-
-// WaitRun calls runcoil.v1.RunService.WaitRun.
-func (c *runServiceClient) WaitRun(ctx context.Context, req *connect.Request[v1.WaitRunRequest]) (*connect.Response[v1.WaitRunResponse], error) {
-	return c.waitRun.CallUnary(ctx, req)
-}
-
-// ListRuns calls runcoil.v1.RunService.ListRuns.
-func (c *runServiceClient) ListRuns(ctx context.Context, req *connect.Request[v1.ListRunsRequest]) (*connect.Response[v1.ListRunsResponse], error) {
-	return c.listRuns.CallUnary(ctx, req)
-}
-
-// Rerun calls runcoil.v1.RunService.Rerun.
-func (c *runServiceClient) Rerun(ctx context.Context, req *connect.Request[v1.RerunRequest]) (*connect.Response[v1.RerunResponse], error) {
-	return c.rerun.CallUnary(ctx, req)
-}
-
-// ListTasks calls runcoil.v1.RunService.ListTasks.
-func (c *runServiceClient) ListTasks(ctx context.Context, req *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error) {
-	return c.listTasks.CallUnary(ctx, req)
+// NewRunServiceClient constructs a client for the runcoil.v1.RunService service. Multiple service
+// clients may share a single connect.Client.
+func NewRunServiceClient(client *connect.Client) RunServiceClient {
+	return &runServiceClient{client: client}
 }
 
 // RunServiceHandler is an implementation of the runcoil.v1.RunService service.
 type RunServiceHandler interface {
 	// Invoke creates a Run of a Task. Answers after the Run and its key are stored.
-	Invoke(context.Context, *connect.Request[v1.InvokeRequest]) (*connect.Response[v1.InvokeResponse], error)
+	Invoke(context.Context, *v1.InvokeRequest) (*v1.InvokeResponse, error)
 	// GetRun returns a snapshot, by Run ID or by the idempotency key that created the Run.
-	GetRun(context.Context, *connect.Request[v1.GetRunRequest]) (*connect.Response[v1.GetRunResponse], error)
+	GetRun(context.Context, *v1.GetRunRequest) (*v1.GetRunResponse, error)
 	// WaitRun returns when the Run is finished or the timeout passes. An unset timeout,
 	// or one over the server's maximum, waits for the maximum.
 	// A timeout does not affect the Run.
-	WaitRun(context.Context, *connect.Request[v1.WaitRunRequest]) (*connect.Response[v1.WaitRunResponse], error)
-	ListRuns(context.Context, *connect.Request[v1.ListRunsRequest]) (*connect.Response[v1.ListRunsResponse], error)
+	WaitRun(context.Context, *v1.WaitRunRequest) (*v1.WaitRunResponse, error)
+	ListRuns(context.Context, *v1.ListRunsRequest) (*v1.ListRunsResponse, error)
 	// Rerun creates a new Run from a finished one, from its start or from a selected Step.
-	Rerun(context.Context, *connect.Request[v1.RerunRequest]) (*connect.Response[v1.RerunResponse], error)
+	Rerun(context.Context, *v1.RerunRequest) (*v1.RerunResponse, error)
 	// ListTasks returns the registered Tasks of a worker ID, with their schedules.
-	ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error)
+	ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error)
 }
 
-// NewRunServiceHandler builds an HTTP handler from the service implementation. It returns the path
-// on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewRunServiceHandler(svc RunServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	runServiceMethods := v1.File_runcoil_v1_runs_proto.Services().ByName("RunService").Methods()
-	runServiceInvokeHandler := connect.NewUnaryHandler(
-		RunServiceInvokeProcedure,
-		svc.Invoke,
-		connect.WithSchema(runServiceMethods.ByName("Invoke")),
-		connect.WithHandlerOptions(opts...),
+// RegisterRunServiceHandler registers svc as the runcoil.v1.RunService implementation on server.
+func RegisterRunServiceHandler(server *connect.Server, svc RunServiceHandler) {
+	adapter := runServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: runServiceInvokeSpec(), Handler: adapter.invoke},
+		connect.Method{Spec: runServiceGetRunSpec(), Handler: adapter.getRun},
+		connect.Method{Spec: runServiceWaitRunSpec(), Handler: adapter.waitRun},
+		connect.Method{Spec: runServiceListRunsSpec(), Handler: adapter.listRuns},
+		connect.Method{Spec: runServiceRerunSpec(), Handler: adapter.rerun},
+		connect.Method{Spec: runServiceListTasksSpec(), Handler: adapter.listTasks},
 	)
-	runServiceGetRunHandler := connect.NewUnaryHandler(
-		RunServiceGetRunProcedure,
-		svc.GetRun,
-		connect.WithSchema(runServiceMethods.ByName("GetRun")),
-		connect.WithHandlerOptions(opts...),
-	)
-	runServiceWaitRunHandler := connect.NewUnaryHandler(
-		RunServiceWaitRunProcedure,
-		svc.WaitRun,
-		connect.WithSchema(runServiceMethods.ByName("WaitRun")),
-		connect.WithHandlerOptions(opts...),
-	)
-	runServiceListRunsHandler := connect.NewUnaryHandler(
-		RunServiceListRunsProcedure,
-		svc.ListRuns,
-		connect.WithSchema(runServiceMethods.ByName("ListRuns")),
-		connect.WithHandlerOptions(opts...),
-	)
-	runServiceRerunHandler := connect.NewUnaryHandler(
-		RunServiceRerunProcedure,
-		svc.Rerun,
-		connect.WithSchema(runServiceMethods.ByName("Rerun")),
-		connect.WithHandlerOptions(opts...),
-	)
-	runServiceListTasksHandler := connect.NewUnaryHandler(
-		RunServiceListTasksProcedure,
-		svc.ListTasks,
-		connect.WithSchema(runServiceMethods.ByName("ListTasks")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/runcoil.v1.RunService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case RunServiceInvokeProcedure:
-			runServiceInvokeHandler.ServeHTTP(w, r)
-		case RunServiceGetRunProcedure:
-			runServiceGetRunHandler.ServeHTTP(w, r)
-		case RunServiceWaitRunProcedure:
-			runServiceWaitRunHandler.ServeHTTP(w, r)
-		case RunServiceListRunsProcedure:
-			runServiceListRunsHandler.ServeHTTP(w, r)
-		case RunServiceRerunProcedure:
-			runServiceRerunHandler.ServeHTTP(w, r)
-		case RunServiceListTasksProcedure:
-			runServiceListTasksHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedRunServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedRunServiceHandler struct{}
 
-func (UnimplementedRunServiceHandler) Invoke(context.Context, *connect.Request[v1.InvokeRequest]) (*connect.Response[v1.InvokeResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.RunService.Invoke is not implemented"))
+func (UnimplementedRunServiceHandler) Invoke(context.Context, *v1.InvokeRequest) (*v1.InvokeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.RunService.Invoke is not implemented")
 }
 
-func (UnimplementedRunServiceHandler) GetRun(context.Context, *connect.Request[v1.GetRunRequest]) (*connect.Response[v1.GetRunResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.RunService.GetRun is not implemented"))
+func (UnimplementedRunServiceHandler) GetRun(context.Context, *v1.GetRunRequest) (*v1.GetRunResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.RunService.GetRun is not implemented")
 }
 
-func (UnimplementedRunServiceHandler) WaitRun(context.Context, *connect.Request[v1.WaitRunRequest]) (*connect.Response[v1.WaitRunResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.RunService.WaitRun is not implemented"))
+func (UnimplementedRunServiceHandler) WaitRun(context.Context, *v1.WaitRunRequest) (*v1.WaitRunResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.RunService.WaitRun is not implemented")
 }
 
-func (UnimplementedRunServiceHandler) ListRuns(context.Context, *connect.Request[v1.ListRunsRequest]) (*connect.Response[v1.ListRunsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.RunService.ListRuns is not implemented"))
+func (UnimplementedRunServiceHandler) ListRuns(context.Context, *v1.ListRunsRequest) (*v1.ListRunsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.RunService.ListRuns is not implemented")
 }
 
-func (UnimplementedRunServiceHandler) Rerun(context.Context, *connect.Request[v1.RerunRequest]) (*connect.Response[v1.RerunResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.RunService.Rerun is not implemented"))
+func (UnimplementedRunServiceHandler) Rerun(context.Context, *v1.RerunRequest) (*v1.RerunResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.RunService.Rerun is not implemented")
 }
 
-func (UnimplementedRunServiceHandler) ListTasks(context.Context, *connect.Request[v1.ListTasksRequest]) (*connect.Response[v1.ListTasksResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.RunService.ListTasks is not implemented"))
+func (UnimplementedRunServiceHandler) ListTasks(context.Context, *v1.ListTasksRequest) (*v1.ListTasksResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.RunService.ListTasks is not implemented")
+}
+
+type runServiceClient struct {
+	client *connect.Client
+}
+
+func (c *runServiceClient) Invoke(ctx context.Context, req *v1.InvokeRequest) (*v1.InvokeResponse, error) {
+	var res v1.InvokeResponse
+	if err := c.client.CallUnary(ctx, runServiceInvokeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *runServiceClient) GetRun(ctx context.Context, req *v1.GetRunRequest) (*v1.GetRunResponse, error) {
+	var res v1.GetRunResponse
+	if err := c.client.CallUnary(ctx, runServiceGetRunSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *runServiceClient) WaitRun(ctx context.Context, req *v1.WaitRunRequest) (*v1.WaitRunResponse, error) {
+	var res v1.WaitRunResponse
+	if err := c.client.CallUnary(ctx, runServiceWaitRunSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *runServiceClient) ListRuns(ctx context.Context, req *v1.ListRunsRequest) (*v1.ListRunsResponse, error) {
+	var res v1.ListRunsResponse
+	if err := c.client.CallUnary(ctx, runServiceListRunsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *runServiceClient) Rerun(ctx context.Context, req *v1.RerunRequest) (*v1.RerunResponse, error) {
+	var res v1.RerunResponse
+	if err := c.client.CallUnary(ctx, runServiceRerunSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *runServiceClient) ListTasks(ctx context.Context, req *v1.ListTasksRequest) (*v1.ListTasksResponse, error) {
+	var res v1.ListTasksResponse
+	if err := c.client.CallUnary(ctx, runServiceListTasksSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type runServiceHandler struct{ svc RunServiceHandler }
+
+func (h runServiceHandler) invoke(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.InvokeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Invoke(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h runServiceHandler) getRun(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetRunRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetRun(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h runServiceHandler) waitRun(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.WaitRunRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.WaitRun(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h runServiceHandler) listRuns(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListRunsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListRuns(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h runServiceHandler) rerun(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RerunRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Rerun(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h runServiceHandler) listTasks(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListTasksRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListTasks(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

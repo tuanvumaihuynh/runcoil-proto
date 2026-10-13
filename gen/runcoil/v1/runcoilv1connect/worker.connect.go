@@ -8,55 +8,89 @@
 package runcoilv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/tuanvumaihuynh/runcoil-proto/gen/runcoil/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// WorkerServiceName is the fully-qualified name of the WorkerService service.
 	WorkerServiceName = "runcoil.v1.WorkerService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// WorkerServiceRegisterProcedure is the fully-qualified name of the WorkerService's Register RPC.
+	// WorkerServiceRegisterProcedure is the procedure name of the WorkerService's Register RPC.
 	WorkerServiceRegisterProcedure = "/runcoil.v1.WorkerService/Register"
-	// WorkerServiceListenProcedure is the fully-qualified name of the WorkerService's Listen RPC.
+	// WorkerServiceListenProcedure is the procedure name of the WorkerService's Listen RPC.
 	WorkerServiceListenProcedure = "/runcoil.v1.WorkerService/Listen"
-	// WorkerServiceHeartbeatProcedure is the fully-qualified name of the WorkerService's Heartbeat RPC.
+	// WorkerServiceHeartbeatProcedure is the procedure name of the WorkerService's Heartbeat RPC.
 	WorkerServiceHeartbeatProcedure = "/runcoil.v1.WorkerService/Heartbeat"
-	// WorkerServiceAckDispatchProcedure is the fully-qualified name of the WorkerService's AckDispatch
-	// RPC.
+	// WorkerServiceAckDispatchProcedure is the procedure name of the WorkerService's AckDispatch RPC.
 	WorkerServiceAckDispatchProcedure = "/runcoil.v1.WorkerService/AckDispatch"
-	// WorkerServiceRecordStepProcedure is the fully-qualified name of the WorkerService's RecordStep
-	// RPC.
+	// WorkerServiceRecordStepProcedure is the procedure name of the WorkerService's RecordStep RPC.
 	WorkerServiceRecordStepProcedure = "/runcoil.v1.WorkerService/RecordStep"
-	// WorkerServiceFinishRunProcedure is the fully-qualified name of the WorkerService's FinishRun RPC.
+	// WorkerServiceFinishRunProcedure is the procedure name of the WorkerService's FinishRun RPC.
 	WorkerServiceFinishRunProcedure = "/runcoil.v1.WorkerService/FinishRun"
+)
+
+var (
+	workerServiceRegisterSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods().ByName("Register"),
+			Procedure:  WorkerServiceRegisterProcedure,
+		}
+	})
+	workerServiceListenSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeServer,
+			Schema:     v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods().ByName("Listen"),
+			Procedure:  WorkerServiceListenProcedure,
+		}
+	})
+	workerServiceHeartbeatSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods().ByName("Heartbeat"),
+			Procedure:  WorkerServiceHeartbeatProcedure,
+		}
+	})
+	workerServiceAckDispatchSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods().ByName("AckDispatch"),
+			Procedure:  WorkerServiceAckDispatchProcedure,
+		}
+	})
+	workerServiceRecordStepSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods().ByName("RecordStep"),
+			Procedure:  WorkerServiceRecordStepProcedure,
+		}
+	})
+	workerServiceFinishRunSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods().ByName("FinishRun"),
+			Procedure:  WorkerServiceFinishRunProcedure,
+		}
+	})
 )
 
 // WorkerServiceClient is a client for the runcoil.v1.WorkerService service.
 type WorkerServiceClient interface {
 	// Register declares the Tasks of one worker process. All-or-nothing: one invalid
 	// Task registers nothing. Idempotent by instance_id; a resend replaces the last one.
-	Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error)
+	Register(context.Context, *v1.RegisterRequest) (*v1.RegisterResponse, error)
 	// Listen is the only stream. The worker opens it and the server pushes on it.
 	//
 	//  1. The server dispatches only to an instance with an open stream. A second
@@ -68,120 +102,56 @@ type WorkerServiceClient interface {
 	//     stream first and then finishes what it holds.
 	//  4. An instance the server does not know gets NOT_REGISTERED; the worker
 	//     calls Register and listens again.
-	Listen(context.Context, *connect.Request[v1.ListenRequest]) (*connect.ServerStreamForClient[v1.ListenResponse], error)
+	Listen(context.Context, *v1.ListenRequest) (WorkerServiceListenClientStream, error)
 	// Heartbeat shows the worker is alive and renews the leases it names. Sent at the
 	// heartbeat interval from the time the worker starts. When none arrives
 	// for the lease duration, the server ends the worker's stream and its leases expire.
-	Heartbeat(context.Context, *connect.Request[v1.HeartbeatRequest]) (*connect.Response[v1.HeartbeatResponse], error)
+	Heartbeat(context.Context, *v1.HeartbeatRequest) (*v1.HeartbeatResponse, error)
 	// AckDispatch says the worker received a dispatch and now owns the attempt. Called
 	// before the handler starts. A dispatch never acked is given back when its lease
 	// expires, without using a try.
 	// Fails with STALE_LEASE when the attempt is no longer this worker's; the handler
 	// does not run. Idempotent by Run and lease token.
-	AckDispatch(context.Context, *connect.Request[v1.AckDispatchRequest]) (*connect.Response[v1.AckDispatchResponse], error)
+	AckDispatch(context.Context, *v1.AckDispatchRequest) (*v1.AckDispatchResponse, error)
 	// RecordStep stores the outcome of one try of one Step and answers after the commit.
 	// Idempotent by Run, Step, and Step attempt.
-	RecordStep(context.Context, *connect.Request[v1.RecordStepRequest]) (*connect.Response[v1.RecordStepResponse], error)
+	RecordStep(context.Context, *v1.RecordStepRequest) (*v1.RecordStepResponse, error)
 	// FinishRun ends this worker's attempt of a Run: the handler returned, or the worker gives the Run back.
 	// Idempotent by Run and attempt.
-	FinishRun(context.Context, *connect.Request[v1.FinishRunRequest]) (*connect.Response[v1.FinishRunResponse], error)
+	FinishRun(context.Context, *v1.FinishRunRequest) (*v1.FinishRunResponse, error)
 }
 
-// NewWorkerServiceClient constructs a client for the runcoil.v1.WorkerService service. By default,
-// it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and
-// sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC()
-// or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewWorkerServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) WorkerServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	workerServiceMethods := v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods()
-	return &workerServiceClient{
-		register: connect.NewClient[v1.RegisterRequest, v1.RegisterResponse](
-			httpClient,
-			baseURL+WorkerServiceRegisterProcedure,
-			connect.WithSchema(workerServiceMethods.ByName("Register")),
-			connect.WithClientOptions(opts...),
-		),
-		listen: connect.NewClient[v1.ListenRequest, v1.ListenResponse](
-			httpClient,
-			baseURL+WorkerServiceListenProcedure,
-			connect.WithSchema(workerServiceMethods.ByName("Listen")),
-			connect.WithClientOptions(opts...),
-		),
-		heartbeat: connect.NewClient[v1.HeartbeatRequest, v1.HeartbeatResponse](
-			httpClient,
-			baseURL+WorkerServiceHeartbeatProcedure,
-			connect.WithSchema(workerServiceMethods.ByName("Heartbeat")),
-			connect.WithClientOptions(opts...),
-		),
-		ackDispatch: connect.NewClient[v1.AckDispatchRequest, v1.AckDispatchResponse](
-			httpClient,
-			baseURL+WorkerServiceAckDispatchProcedure,
-			connect.WithSchema(workerServiceMethods.ByName("AckDispatch")),
-			connect.WithClientOptions(opts...),
-		),
-		recordStep: connect.NewClient[v1.RecordStepRequest, v1.RecordStepResponse](
-			httpClient,
-			baseURL+WorkerServiceRecordStepProcedure,
-			connect.WithSchema(workerServiceMethods.ByName("RecordStep")),
-			connect.WithClientOptions(opts...),
-		),
-		finishRun: connect.NewClient[v1.FinishRunRequest, v1.FinishRunResponse](
-			httpClient,
-			baseURL+WorkerServiceFinishRunProcedure,
-			connect.WithSchema(workerServiceMethods.ByName("FinishRun")),
-			connect.WithClientOptions(opts...),
-		),
+// NewWorkerServiceClient constructs a client for the runcoil.v1.WorkerService service. Multiple
+// service clients may share a single connect.Client.
+func NewWorkerServiceClient(client *connect.Client) WorkerServiceClient {
+	return &workerServiceClient{client: client}
+}
+
+// WorkerServiceListenClientStream is the client stream for the WorkerService's Listen RPC.
+type WorkerServiceListenClientStream struct {
+	stream connect.ClientStream
+}
+
+// Receive returns the next response message from the server.
+func (s WorkerServiceListenClientStream) Receive() (*v1.ListenResponse, error) {
+	var res v1.ListenResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
 	}
+	return &res, nil
 }
 
-// workerServiceClient implements WorkerServiceClient.
-type workerServiceClient struct {
-	register    *connect.Client[v1.RegisterRequest, v1.RegisterResponse]
-	listen      *connect.Client[v1.ListenRequest, v1.ListenResponse]
-	heartbeat   *connect.Client[v1.HeartbeatRequest, v1.HeartbeatResponse]
-	ackDispatch *connect.Client[v1.AckDispatchRequest, v1.AckDispatchResponse]
-	recordStep  *connect.Client[v1.RecordStepRequest, v1.RecordStepResponse]
-	finishRun   *connect.Client[v1.FinishRunRequest, v1.FinishRunResponse]
-}
-
-// Register calls runcoil.v1.WorkerService.Register.
-func (c *workerServiceClient) Register(ctx context.Context, req *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error) {
-	return c.register.CallUnary(ctx, req)
-}
-
-// Listen calls runcoil.v1.WorkerService.Listen.
-func (c *workerServiceClient) Listen(ctx context.Context, req *connect.Request[v1.ListenRequest]) (*connect.ServerStreamForClient[v1.ListenResponse], error) {
-	return c.listen.CallServerStream(ctx, req)
-}
-
-// Heartbeat calls runcoil.v1.WorkerService.Heartbeat.
-func (c *workerServiceClient) Heartbeat(ctx context.Context, req *connect.Request[v1.HeartbeatRequest]) (*connect.Response[v1.HeartbeatResponse], error) {
-	return c.heartbeat.CallUnary(ctx, req)
-}
-
-// AckDispatch calls runcoil.v1.WorkerService.AckDispatch.
-func (c *workerServiceClient) AckDispatch(ctx context.Context, req *connect.Request[v1.AckDispatchRequest]) (*connect.Response[v1.AckDispatchResponse], error) {
-	return c.ackDispatch.CallUnary(ctx, req)
-}
-
-// RecordStep calls runcoil.v1.WorkerService.RecordStep.
-func (c *workerServiceClient) RecordStep(ctx context.Context, req *connect.Request[v1.RecordStepRequest]) (*connect.Response[v1.RecordStepResponse], error) {
-	return c.recordStep.CallUnary(ctx, req)
-}
-
-// FinishRun calls runcoil.v1.WorkerService.FinishRun.
-func (c *workerServiceClient) FinishRun(ctx context.Context, req *connect.Request[v1.FinishRunRequest]) (*connect.Response[v1.FinishRunResponse], error) {
-	return c.finishRun.CallUnary(ctx, req)
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s WorkerServiceListenClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // WorkerServiceHandler is an implementation of the runcoil.v1.WorkerService service.
 type WorkerServiceHandler interface {
 	// Register declares the Tasks of one worker process. All-or-nothing: one invalid
 	// Task registers nothing. Idempotent by instance_id; a resend replaces the last one.
-	Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error)
+	Register(context.Context, *v1.RegisterRequest) (*v1.RegisterResponse, error)
 	// Listen is the only stream. The worker opens it and the server pushes on it.
 	//
 	//  1. The server dispatches only to an instance with an open stream. A second
@@ -193,111 +163,199 @@ type WorkerServiceHandler interface {
 	//     stream first and then finishes what it holds.
 	//  4. An instance the server does not know gets NOT_REGISTERED; the worker
 	//     calls Register and listens again.
-	Listen(context.Context, *connect.Request[v1.ListenRequest], *connect.ServerStream[v1.ListenResponse]) error
+	Listen(context.Context, *v1.ListenRequest, WorkerServiceListenServerStream) error
 	// Heartbeat shows the worker is alive and renews the leases it names. Sent at the
 	// heartbeat interval from the time the worker starts. When none arrives
 	// for the lease duration, the server ends the worker's stream and its leases expire.
-	Heartbeat(context.Context, *connect.Request[v1.HeartbeatRequest]) (*connect.Response[v1.HeartbeatResponse], error)
+	Heartbeat(context.Context, *v1.HeartbeatRequest) (*v1.HeartbeatResponse, error)
 	// AckDispatch says the worker received a dispatch and now owns the attempt. Called
 	// before the handler starts. A dispatch never acked is given back when its lease
 	// expires, without using a try.
 	// Fails with STALE_LEASE when the attempt is no longer this worker's; the handler
 	// does not run. Idempotent by Run and lease token.
-	AckDispatch(context.Context, *connect.Request[v1.AckDispatchRequest]) (*connect.Response[v1.AckDispatchResponse], error)
+	AckDispatch(context.Context, *v1.AckDispatchRequest) (*v1.AckDispatchResponse, error)
 	// RecordStep stores the outcome of one try of one Step and answers after the commit.
 	// Idempotent by Run, Step, and Step attempt.
-	RecordStep(context.Context, *connect.Request[v1.RecordStepRequest]) (*connect.Response[v1.RecordStepResponse], error)
+	RecordStep(context.Context, *v1.RecordStepRequest) (*v1.RecordStepResponse, error)
 	// FinishRun ends this worker's attempt of a Run: the handler returned, or the worker gives the Run back.
 	// Idempotent by Run and attempt.
-	FinishRun(context.Context, *connect.Request[v1.FinishRunRequest]) (*connect.Response[v1.FinishRunResponse], error)
+	FinishRun(context.Context, *v1.FinishRunRequest) (*v1.FinishRunResponse, error)
 }
 
-// NewWorkerServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewWorkerServiceHandler(svc WorkerServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	workerServiceMethods := v1.File_runcoil_v1_worker_proto.Services().ByName("WorkerService").Methods()
-	workerServiceRegisterHandler := connect.NewUnaryHandler(
-		WorkerServiceRegisterProcedure,
-		svc.Register,
-		connect.WithSchema(workerServiceMethods.ByName("Register")),
-		connect.WithHandlerOptions(opts...),
+// RegisterWorkerServiceHandler registers svc as the runcoil.v1.WorkerService implementation on
+// server.
+func RegisterWorkerServiceHandler(server *connect.Server, svc WorkerServiceHandler) {
+	adapter := workerServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: workerServiceRegisterSpec(), Handler: adapter.register},
+		connect.Method{Spec: workerServiceListenSpec(), Handler: adapter.listen},
+		connect.Method{Spec: workerServiceHeartbeatSpec(), Handler: adapter.heartbeat},
+		connect.Method{Spec: workerServiceAckDispatchSpec(), Handler: adapter.ackDispatch},
+		connect.Method{Spec: workerServiceRecordStepSpec(), Handler: adapter.recordStep},
+		connect.Method{Spec: workerServiceFinishRunSpec(), Handler: adapter.finishRun},
 	)
-	workerServiceListenHandler := connect.NewServerStreamHandler(
-		WorkerServiceListenProcedure,
-		svc.Listen,
-		connect.WithSchema(workerServiceMethods.ByName("Listen")),
-		connect.WithHandlerOptions(opts...),
-	)
-	workerServiceHeartbeatHandler := connect.NewUnaryHandler(
-		WorkerServiceHeartbeatProcedure,
-		svc.Heartbeat,
-		connect.WithSchema(workerServiceMethods.ByName("Heartbeat")),
-		connect.WithHandlerOptions(opts...),
-	)
-	workerServiceAckDispatchHandler := connect.NewUnaryHandler(
-		WorkerServiceAckDispatchProcedure,
-		svc.AckDispatch,
-		connect.WithSchema(workerServiceMethods.ByName("AckDispatch")),
-		connect.WithHandlerOptions(opts...),
-	)
-	workerServiceRecordStepHandler := connect.NewUnaryHandler(
-		WorkerServiceRecordStepProcedure,
-		svc.RecordStep,
-		connect.WithSchema(workerServiceMethods.ByName("RecordStep")),
-		connect.WithHandlerOptions(opts...),
-	)
-	workerServiceFinishRunHandler := connect.NewUnaryHandler(
-		WorkerServiceFinishRunProcedure,
-		svc.FinishRun,
-		connect.WithSchema(workerServiceMethods.ByName("FinishRun")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/runcoil.v1.WorkerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case WorkerServiceRegisterProcedure:
-			workerServiceRegisterHandler.ServeHTTP(w, r)
-		case WorkerServiceListenProcedure:
-			workerServiceListenHandler.ServeHTTP(w, r)
-		case WorkerServiceHeartbeatProcedure:
-			workerServiceHeartbeatHandler.ServeHTTP(w, r)
-		case WorkerServiceAckDispatchProcedure:
-			workerServiceAckDispatchHandler.ServeHTTP(w, r)
-		case WorkerServiceRecordStepProcedure:
-			workerServiceRecordStepHandler.ServeHTTP(w, r)
-		case WorkerServiceFinishRunProcedure:
-			workerServiceFinishRunHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+}
+
+// WorkerServiceListenServerStream is the server stream for the WorkerService's Listen RPC.
+type WorkerServiceListenServerStream struct {
+	stream connect.ServerStream
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s WorkerServiceListenServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s WorkerServiceListenServerStream) Send(res *v1.ListenResponse) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedWorkerServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedWorkerServiceHandler struct{}
 
-func (UnimplementedWorkerServiceHandler) Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.WorkerService.Register is not implemented"))
+func (UnimplementedWorkerServiceHandler) Register(context.Context, *v1.RegisterRequest) (*v1.RegisterResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.WorkerService.Register is not implemented")
 }
 
-func (UnimplementedWorkerServiceHandler) Listen(context.Context, *connect.Request[v1.ListenRequest], *connect.ServerStream[v1.ListenResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.WorkerService.Listen is not implemented"))
+func (UnimplementedWorkerServiceHandler) Listen(context.Context, *v1.ListenRequest, WorkerServiceListenServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "runcoil.v1.WorkerService.Listen is not implemented")
 }
 
-func (UnimplementedWorkerServiceHandler) Heartbeat(context.Context, *connect.Request[v1.HeartbeatRequest]) (*connect.Response[v1.HeartbeatResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.WorkerService.Heartbeat is not implemented"))
+func (UnimplementedWorkerServiceHandler) Heartbeat(context.Context, *v1.HeartbeatRequest) (*v1.HeartbeatResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.WorkerService.Heartbeat is not implemented")
 }
 
-func (UnimplementedWorkerServiceHandler) AckDispatch(context.Context, *connect.Request[v1.AckDispatchRequest]) (*connect.Response[v1.AckDispatchResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.WorkerService.AckDispatch is not implemented"))
+func (UnimplementedWorkerServiceHandler) AckDispatch(context.Context, *v1.AckDispatchRequest) (*v1.AckDispatchResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.WorkerService.AckDispatch is not implemented")
 }
 
-func (UnimplementedWorkerServiceHandler) RecordStep(context.Context, *connect.Request[v1.RecordStepRequest]) (*connect.Response[v1.RecordStepResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.WorkerService.RecordStep is not implemented"))
+func (UnimplementedWorkerServiceHandler) RecordStep(context.Context, *v1.RecordStepRequest) (*v1.RecordStepResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.WorkerService.RecordStep is not implemented")
 }
 
-func (UnimplementedWorkerServiceHandler) FinishRun(context.Context, *connect.Request[v1.FinishRunRequest]) (*connect.Response[v1.FinishRunResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("runcoil.v1.WorkerService.FinishRun is not implemented"))
+func (UnimplementedWorkerServiceHandler) FinishRun(context.Context, *v1.FinishRunRequest) (*v1.FinishRunResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "runcoil.v1.WorkerService.FinishRun is not implemented")
+}
+
+type workerServiceClient struct {
+	client *connect.Client
+}
+
+func (c *workerServiceClient) Register(ctx context.Context, req *v1.RegisterRequest) (*v1.RegisterResponse, error) {
+	var res v1.RegisterResponse
+	if err := c.client.CallUnary(ctx, workerServiceRegisterSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *workerServiceClient) Listen(ctx context.Context, req *v1.ListenRequest) (WorkerServiceListenClientStream, error) {
+	stream, err := c.client.CallServerStream(ctx, workerServiceListenSpec(), req)
+	if err != nil {
+		return WorkerServiceListenClientStream{}, err
+	}
+	return WorkerServiceListenClientStream{stream: stream}, nil
+}
+
+func (c *workerServiceClient) Heartbeat(ctx context.Context, req *v1.HeartbeatRequest) (*v1.HeartbeatResponse, error) {
+	var res v1.HeartbeatResponse
+	if err := c.client.CallUnary(ctx, workerServiceHeartbeatSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *workerServiceClient) AckDispatch(ctx context.Context, req *v1.AckDispatchRequest) (*v1.AckDispatchResponse, error) {
+	var res v1.AckDispatchResponse
+	if err := c.client.CallUnary(ctx, workerServiceAckDispatchSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *workerServiceClient) RecordStep(ctx context.Context, req *v1.RecordStepRequest) (*v1.RecordStepResponse, error) {
+	var res v1.RecordStepResponse
+	if err := c.client.CallUnary(ctx, workerServiceRecordStepSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *workerServiceClient) FinishRun(ctx context.Context, req *v1.FinishRunRequest) (*v1.FinishRunResponse, error) {
+	var res v1.FinishRunResponse
+	if err := c.client.CallUnary(ctx, workerServiceFinishRunSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type workerServiceHandler struct{ svc WorkerServiceHandler }
+
+func (h workerServiceHandler) register(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RegisterRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Register(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h workerServiceHandler) listen(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListenRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	return h.svc.Listen(ctx, &req, WorkerServiceListenServerStream{stream: stream})
+}
+
+func (h workerServiceHandler) heartbeat(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.HeartbeatRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Heartbeat(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h workerServiceHandler) ackDispatch(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.AckDispatchRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AckDispatch(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h workerServiceHandler) recordStep(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RecordStepRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RecordStep(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h workerServiceHandler) finishRun(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.FinishRunRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.FinishRun(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }
