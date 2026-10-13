@@ -35,4 +35,4 @@ import (
 Buf and the protoc plugins run through `go run` at the versions pinned in the
 `Makefile` (`BUF_VERSION`) and `buf.gen.yaml`; nothing is installed globally.
 Keep the plugin versions equal to the `google.golang.org/protobuf` and
-`connectrpc.com/connect` requirements in `go.mod`.
+`connectrpc.com/connect/v2` requirements in `go.mod`.
