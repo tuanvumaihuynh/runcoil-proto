@@ -1,0 +1,3 @@
+# Generated Go code under gen/ is not checked: it is written by buf and not edited.
+[files]
+extend-exclude = ["gen/"]

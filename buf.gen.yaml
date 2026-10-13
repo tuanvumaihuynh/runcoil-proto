@@ -1,6 +1,7 @@
 # Generated Go code is committed under gen/. Plugin versions are pinned here and
 # must match the requirements in go.mod (google.golang.org/protobuf, connectrpc.com/connect).
 version: v2
+clean: true
 managed:
   enabled: true
   override:
