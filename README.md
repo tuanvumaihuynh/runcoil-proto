@@ -36,3 +36,7 @@ Buf and the protoc plugins run through `go run` at the versions pinned in the
 `Makefile` (`BUF_VERSION`) and `buf.gen.yaml`; nothing is installed globally.
 Keep the plugin versions equal to the `google.golang.org/protobuf` and
 `connectrpc.com/connect/v2` requirements in `go.mod`.
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).
