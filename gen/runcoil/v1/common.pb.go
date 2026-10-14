@@ -410,59 +410,6 @@ func (ErrorCode) EnumDescriptor() ([]byte, []int) {
 	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{5}
 }
 
-// A Task is identified by the worker ID that owns it and its Task ID.
-type TaskRef struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	WorkerId      string                 `protobuf:"bytes,1,opt,name=worker_id,json=workerId,proto3" json:"worker_id,omitempty"`
-	TaskId        string                 `protobuf:"bytes,2,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TaskRef) Reset() {
-	*x = TaskRef{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TaskRef) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TaskRef) ProtoMessage() {}
-
-func (x *TaskRef) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TaskRef.ProtoReflect.Descriptor instead.
-func (*TaskRef) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *TaskRef) GetWorkerId() string {
-	if x != nil {
-		return x.WorkerId
-	}
-	return ""
-}
-
-func (x *TaskRef) GetTaskId() string {
-	if x != nil {
-		return x.TaskId
-	}
-	return ""
-}
-
 // RetryPolicy of a Task or a Step. A zero field means the server's default.
 type RetryPolicy struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -476,7 +423,7 @@ type RetryPolicy struct {
 
 func (x *RetryPolicy) Reset() {
 	*x = RetryPolicy{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[1]
+	mi := &file_runcoil_v1_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +435,7 @@ func (x *RetryPolicy) String() string {
 func (*RetryPolicy) ProtoMessage() {}
 
 func (x *RetryPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[1]
+	mi := &file_runcoil_v1_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +448,7 @@ func (x *RetryPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryPolicy.ProtoReflect.Descriptor instead.
 func (*RetryPolicy) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{1}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *RetryPolicy) GetMaxAttempts() uint32 {
@@ -535,7 +482,7 @@ type Schedule struct {
 
 func (x *Schedule) Reset() {
 	*x = Schedule{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[2]
+	mi := &file_runcoil_v1_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -547,7 +494,7 @@ func (x *Schedule) String() string {
 func (*Schedule) ProtoMessage() {}
 
 func (x *Schedule) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[2]
+	mi := &file_runcoil_v1_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -560,7 +507,7 @@ func (x *Schedule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Schedule.ProtoReflect.Descriptor instead.
 func (*Schedule) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{2}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Schedule) GetKind() isSchedule_Kind {
@@ -637,7 +584,7 @@ type DailyTimes struct {
 
 func (x *DailyTimes) Reset() {
 	*x = DailyTimes{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[3]
+	mi := &file_runcoil_v1_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -649,7 +596,7 @@ func (x *DailyTimes) String() string {
 func (*DailyTimes) ProtoMessage() {}
 
 func (x *DailyTimes) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[3]
+	mi := &file_runcoil_v1_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -662,7 +609,7 @@ func (x *DailyTimes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DailyTimes.ProtoReflect.Descriptor instead.
 func (*DailyTimes) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{3}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DailyTimes) GetAt() []*TimeOfDay {
@@ -683,7 +630,7 @@ type TimeOfDay struct {
 
 func (x *TimeOfDay) Reset() {
 	*x = TimeOfDay{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[4]
+	mi := &file_runcoil_v1_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -695,7 +642,7 @@ func (x *TimeOfDay) String() string {
 func (*TimeOfDay) ProtoMessage() {}
 
 func (x *TimeOfDay) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[4]
+	mi := &file_runcoil_v1_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +655,7 @@ func (x *TimeOfDay) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TimeOfDay.ProtoReflect.Descriptor instead.
 func (*TimeOfDay) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{4}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *TimeOfDay) GetHour() uint32 {
@@ -741,7 +688,7 @@ type Failure struct {
 
 func (x *Failure) Reset() {
 	*x = Failure{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[5]
+	mi := &file_runcoil_v1_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -753,7 +700,7 @@ func (x *Failure) String() string {
 func (*Failure) ProtoMessage() {}
 
 func (x *Failure) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[5]
+	mi := &file_runcoil_v1_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -766,7 +713,7 @@ func (x *Failure) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Failure.ProtoReflect.Descriptor instead.
 func (*Failure) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{5}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Failure) GetCode() FailureCode {
@@ -815,7 +762,7 @@ type StepRecord struct {
 
 func (x *StepRecord) Reset() {
 	*x = StepRecord{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[6]
+	mi := &file_runcoil_v1_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +774,7 @@ func (x *StepRecord) String() string {
 func (*StepRecord) ProtoMessage() {}
 
 func (x *StepRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[6]
+	mi := &file_runcoil_v1_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +787,7 @@ func (x *StepRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StepRecord.ProtoReflect.Descriptor instead.
 func (*StepRecord) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{6}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *StepRecord) GetStepId() string {
@@ -880,45 +827,48 @@ func (x *StepRecord) GetFailure() *Failure {
 
 // Run is a snapshot of one Run.
 type Run struct {
-	state  protoimpl.MessageState `protogen:"open.v1"`
-	RunId  string                 `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
-	Task   *TaskRef               `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
-	Status RunStatus              `protobuf:"varint,3,opt,name=status,proto3,enum=runcoil.v1.RunStatus" json:"status,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	RunId string                 `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// The worker ID that owns the Task of this Run.
+	WorkerId string `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3" json:"worker_id,omitempty"`
+	// The ID of the Task of this Run, under its worker ID.
+	TaskId string    `protobuf:"bytes,3,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Status RunStatus `protobuf:"varint,4,opt,name=status,proto3,enum=runcoil.v1.RunStatus" json:"status,omitempty"`
 	// Set while status is QUEUED.
-	QueuedReason QueuedReason `protobuf:"varint,4,opt,name=queued_reason,json=queuedReason,proto3,enum=runcoil.v1.QueuedReason" json:"queued_reason,omitempty"`
+	QueuedReason QueuedReason `protobuf:"varint,5,opt,name=queued_reason,json=queuedReason,proto3,enum=runcoil.v1.QueuedReason" json:"queued_reason,omitempty"`
 	// True when the status will not change. Lets an older client handle a status it does not know.
-	Terminal bool      `protobuf:"varint,5,opt,name=terminal,proto3" json:"terminal,omitempty"`
-	Source   RunSource `protobuf:"varint,6,opt,name=source,proto3,enum=runcoil.v1.RunSource" json:"source,omitempty"`
+	Terminal bool      `protobuf:"varint,6,opt,name=terminal,proto3" json:"terminal,omitempty"`
+	Source   RunSource `protobuf:"varint,7,opt,name=source,proto3,enum=runcoil.v1.RunSource" json:"source,omitempty"`
 	// Attempts started so far.
-	Attempts uint32 `protobuf:"varint,7,opt,name=attempts,proto3" json:"attempts,omitempty"`
+	Attempts uint32 `protobuf:"varint,8,opt,name=attempts,proto3" json:"attempts,omitempty"`
 	// JSON. Opaque to the server.
-	Input []byte `protobuf:"bytes,8,opt,name=input,proto3" json:"input,omitempty"`
+	Input []byte `protobuf:"bytes,9,opt,name=input,proto3" json:"input,omitempty"`
 	// JSON, set when the Run succeeded.
-	Output []byte `protobuf:"bytes,9,opt,name=output,proto3" json:"output,omitempty"`
+	Output []byte `protobuf:"bytes,10,opt,name=output,proto3" json:"output,omitempty"`
 	// Set when the Run failed.
-	Failure   *Failure               `protobuf:"bytes,10,opt,name=failure,proto3" json:"failure,omitempty"`
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Failure   *Failure               `protobuf:"bytes,11,opt,name=failure,proto3" json:"failure,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// When the Run was due: the schedule's tick, or the time of acceptance.
-	DueAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=due_at,json=dueAt,proto3" json:"due_at,omitempty"`
+	DueAt *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=due_at,json=dueAt,proto3" json:"due_at,omitempty"`
 	// When the first attempt was acknowledged by a worker.
-	StartedAt  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
-	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	StartedAt  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	// Earliest start of the next attempt, while queued for a retry.
-	NextAttemptAt *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=next_attempt_at,json=nextAttemptAt,proto3" json:"next_attempt_at,omitempty"`
+	NextAttemptAt *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=next_attempt_at,json=nextAttemptAt,proto3" json:"next_attempt_at,omitempty"`
 	// The Run this one reruns.
-	RerunOf string `protobuf:"bytes,16,opt,name=rerun_of,json=rerunOf,proto3" json:"rerun_of,omitempty"`
+	RerunOf string `protobuf:"bytes,17,opt,name=rerun_of,json=rerunOf,proto3" json:"rerun_of,omitempty"`
 	// Instance that holds the attempt. Kept when the Run finishes, except after ATTEMPT_LOST;
 	// empty while the Run is queued.
-	InstanceId string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	InstanceId string `protobuf:"bytes,18,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	// Filled only when the request asks for Steps.
-	Steps         []*StepRecord `protobuf:"bytes,18,rep,name=steps,proto3" json:"steps,omitempty"`
+	Steps         []*StepRecord `protobuf:"bytes,19,rep,name=steps,proto3" json:"steps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Run) Reset() {
 	*x = Run{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[7]
+	mi := &file_runcoil_v1_common_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -930,7 +880,7 @@ func (x *Run) String() string {
 func (*Run) ProtoMessage() {}
 
 func (x *Run) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[7]
+	mi := &file_runcoil_v1_common_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -943,7 +893,7 @@ func (x *Run) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Run.ProtoReflect.Descriptor instead.
 func (*Run) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{7}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Run) GetRunId() string {
@@ -953,11 +903,18 @@ func (x *Run) GetRunId() string {
 	return ""
 }
 
-func (x *Run) GetTask() *TaskRef {
+func (x *Run) GetWorkerId() string {
 	if x != nil {
-		return x.Task
+		return x.WorkerId
 	}
-	return nil
+	return ""
+}
+
+func (x *Run) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 func (x *Run) GetStatus() RunStatus {
@@ -1086,7 +1043,7 @@ type ErrorDetail struct {
 
 func (x *ErrorDetail) Reset() {
 	*x = ErrorDetail{}
-	mi := &file_runcoil_v1_common_proto_msgTypes[8]
+	mi := &file_runcoil_v1_common_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1098,7 +1055,7 @@ func (x *ErrorDetail) String() string {
 func (*ErrorDetail) ProtoMessage() {}
 
 func (x *ErrorDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_runcoil_v1_common_proto_msgTypes[8]
+	mi := &file_runcoil_v1_common_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1111,7 +1068,7 @@ func (x *ErrorDetail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorDetail.ProtoReflect.Descriptor instead.
 func (*ErrorDetail) Descriptor() ([]byte, []int) {
-	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{8}
+	return file_runcoil_v1_common_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ErrorDetail) GetCode() ErrorCode {
@@ -1140,10 +1097,7 @@ var File_runcoil_v1_common_proto protoreflect.FileDescriptor
 const file_runcoil_v1_common_proto_rawDesc = "" +
 	"\n" +
 	"\x17runcoil/v1/common.proto\x12\n" +
-	"runcoil.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"?\n" +
-	"\aTaskRef\x12\x1b\n" +
-	"\tworker_id\x18\x01 \x01(\tR\bworkerId\x12\x17\n" +
-	"\atask_id\x18\x02 \x01(\tR\x06taskId\"c\n" +
+	"runcoil.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"c\n" +
 	"\vRetryPolicy\x12!\n" +
 	"\fmax_attempts\x18\x01 \x01(\rR\vmaxAttempts\x121\n" +
 	"\x06delays\x18\x02 \x03(\v2\x19.google.protobuf.DurationR\x06delays\"\xae\x01\n" +
@@ -1170,31 +1124,32 @@ const file_runcoil_v1_common_proto_rawDesc = "" +
 	"\x05index\x18\x02 \x01(\rR\x05index\x12.\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x16.runcoil.v1.StepStatusR\x06status\x12\x16\n" +
 	"\x06output\x18\x04 \x01(\fR\x06output\x12-\n" +
-	"\afailure\x18\x05 \x01(\v2\x13.runcoil.v1.FailureR\afailure\"\x8b\x06\n" +
+	"\afailure\x18\x05 \x01(\v2\x13.runcoil.v1.FailureR\afailure\"\x98\x06\n" +
 	"\x03Run\x12\x15\n" +
-	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12'\n" +
-	"\x04task\x18\x02 \x01(\v2\x13.runcoil.v1.TaskRefR\x04task\x12-\n" +
-	"\x06status\x18\x03 \x01(\x0e2\x15.runcoil.v1.RunStatusR\x06status\x12=\n" +
-	"\rqueued_reason\x18\x04 \x01(\x0e2\x18.runcoil.v1.QueuedReasonR\fqueuedReason\x12\x1a\n" +
-	"\bterminal\x18\x05 \x01(\bR\bterminal\x12-\n" +
-	"\x06source\x18\x06 \x01(\x0e2\x15.runcoil.v1.RunSourceR\x06source\x12\x1a\n" +
-	"\battempts\x18\a \x01(\rR\battempts\x12\x14\n" +
-	"\x05input\x18\b \x01(\fR\x05input\x12\x16\n" +
-	"\x06output\x18\t \x01(\fR\x06output\x12-\n" +
-	"\afailure\x18\n" +
-	" \x01(\v2\x13.runcoil.v1.FailureR\afailure\x129\n" +
+	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1b\n" +
+	"\tworker_id\x18\x02 \x01(\tR\bworkerId\x12\x17\n" +
+	"\atask_id\x18\x03 \x01(\tR\x06taskId\x12-\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x15.runcoil.v1.RunStatusR\x06status\x12=\n" +
+	"\rqueued_reason\x18\x05 \x01(\x0e2\x18.runcoil.v1.QueuedReasonR\fqueuedReason\x12\x1a\n" +
+	"\bterminal\x18\x06 \x01(\bR\bterminal\x12-\n" +
+	"\x06source\x18\a \x01(\x0e2\x15.runcoil.v1.RunSourceR\x06source\x12\x1a\n" +
+	"\battempts\x18\b \x01(\rR\battempts\x12\x14\n" +
+	"\x05input\x18\t \x01(\fR\x05input\x12\x16\n" +
+	"\x06output\x18\n" +
+	" \x01(\fR\x06output\x12-\n" +
+	"\afailure\x18\v \x01(\v2\x13.runcoil.v1.FailureR\afailure\x129\n" +
 	"\n" +
-	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x121\n" +
-	"\x06due_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\x129\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x121\n" +
+	"\x06due_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\x129\n" +
 	"\n" +
-	"started_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
-	"\vfinished_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"started_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
+	"\vfinished_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"finishedAt\x12B\n" +
-	"\x0fnext_attempt_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\rnextAttemptAt\x12\x19\n" +
-	"\brerun_of\x18\x10 \x01(\tR\arerunOf\x12\x1f\n" +
-	"\vinstance_id\x18\x11 \x01(\tR\n" +
+	"\x0fnext_attempt_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\rnextAttemptAt\x12\x19\n" +
+	"\brerun_of\x18\x11 \x01(\tR\arerunOf\x12\x1f\n" +
+	"\vinstance_id\x18\x12 \x01(\tR\n" +
 	"instanceId\x12,\n" +
-	"\x05steps\x18\x12 \x03(\v2\x16.runcoil.v1.StepRecordR\x05steps\"h\n" +
+	"\x05steps\x18\x13 \x03(\v2\x16.runcoil.v1.StepRecordR\x05steps\"h\n" +
 	"\vErrorDetail\x12)\n" +
 	"\x04code\x18\x01 \x01(\x0e2\x15.runcoil.v1.ErrorCodeR\x04code\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x17\n" +
@@ -1263,7 +1218,7 @@ func file_runcoil_v1_common_proto_rawDescGZIP() []byte {
 }
 
 var file_runcoil_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_runcoil_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_runcoil_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_runcoil_v1_common_proto_goTypes = []any{
 	(RunStatus)(0),                // 0: runcoil.v1.RunStatus
 	(QueuedReason)(0),             // 1: runcoil.v1.QueuedReason
@@ -1271,43 +1226,41 @@ var file_runcoil_v1_common_proto_goTypes = []any{
 	(StepStatus)(0),               // 3: runcoil.v1.StepStatus
 	(FailureCode)(0),              // 4: runcoil.v1.FailureCode
 	(ErrorCode)(0),                // 5: runcoil.v1.ErrorCode
-	(*TaskRef)(nil),               // 6: runcoil.v1.TaskRef
-	(*RetryPolicy)(nil),           // 7: runcoil.v1.RetryPolicy
-	(*Schedule)(nil),              // 8: runcoil.v1.Schedule
-	(*DailyTimes)(nil),            // 9: runcoil.v1.DailyTimes
-	(*TimeOfDay)(nil),             // 10: runcoil.v1.TimeOfDay
-	(*Failure)(nil),               // 11: runcoil.v1.Failure
-	(*StepRecord)(nil),            // 12: runcoil.v1.StepRecord
-	(*Run)(nil),                   // 13: runcoil.v1.Run
-	(*ErrorDetail)(nil),           // 14: runcoil.v1.ErrorDetail
-	(*durationpb.Duration)(nil),   // 15: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil), // 16: google.protobuf.Timestamp
+	(*RetryPolicy)(nil),           // 6: runcoil.v1.RetryPolicy
+	(*Schedule)(nil),              // 7: runcoil.v1.Schedule
+	(*DailyTimes)(nil),            // 8: runcoil.v1.DailyTimes
+	(*TimeOfDay)(nil),             // 9: runcoil.v1.TimeOfDay
+	(*Failure)(nil),               // 10: runcoil.v1.Failure
+	(*StepRecord)(nil),            // 11: runcoil.v1.StepRecord
+	(*Run)(nil),                   // 12: runcoil.v1.Run
+	(*ErrorDetail)(nil),           // 13: runcoil.v1.ErrorDetail
+	(*durationpb.Duration)(nil),   // 14: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
 }
 var file_runcoil_v1_common_proto_depIdxs = []int32{
-	15, // 0: runcoil.v1.RetryPolicy.delays:type_name -> google.protobuf.Duration
-	15, // 1: runcoil.v1.Schedule.every:type_name -> google.protobuf.Duration
-	9,  // 2: runcoil.v1.Schedule.daily:type_name -> runcoil.v1.DailyTimes
-	10, // 3: runcoil.v1.DailyTimes.at:type_name -> runcoil.v1.TimeOfDay
+	14, // 0: runcoil.v1.RetryPolicy.delays:type_name -> google.protobuf.Duration
+	14, // 1: runcoil.v1.Schedule.every:type_name -> google.protobuf.Duration
+	8,  // 2: runcoil.v1.Schedule.daily:type_name -> runcoil.v1.DailyTimes
+	9,  // 3: runcoil.v1.DailyTimes.at:type_name -> runcoil.v1.TimeOfDay
 	4,  // 4: runcoil.v1.Failure.code:type_name -> runcoil.v1.FailureCode
 	3,  // 5: runcoil.v1.StepRecord.status:type_name -> runcoil.v1.StepStatus
-	11, // 6: runcoil.v1.StepRecord.failure:type_name -> runcoil.v1.Failure
-	6,  // 7: runcoil.v1.Run.task:type_name -> runcoil.v1.TaskRef
-	0,  // 8: runcoil.v1.Run.status:type_name -> runcoil.v1.RunStatus
-	1,  // 9: runcoil.v1.Run.queued_reason:type_name -> runcoil.v1.QueuedReason
-	2,  // 10: runcoil.v1.Run.source:type_name -> runcoil.v1.RunSource
-	11, // 11: runcoil.v1.Run.failure:type_name -> runcoil.v1.Failure
-	16, // 12: runcoil.v1.Run.created_at:type_name -> google.protobuf.Timestamp
-	16, // 13: runcoil.v1.Run.due_at:type_name -> google.protobuf.Timestamp
-	16, // 14: runcoil.v1.Run.started_at:type_name -> google.protobuf.Timestamp
-	16, // 15: runcoil.v1.Run.finished_at:type_name -> google.protobuf.Timestamp
-	16, // 16: runcoil.v1.Run.next_attempt_at:type_name -> google.protobuf.Timestamp
-	12, // 17: runcoil.v1.Run.steps:type_name -> runcoil.v1.StepRecord
-	5,  // 18: runcoil.v1.ErrorDetail.code:type_name -> runcoil.v1.ErrorCode
-	19, // [19:19] is the sub-list for method output_type
-	19, // [19:19] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	10, // 6: runcoil.v1.StepRecord.failure:type_name -> runcoil.v1.Failure
+	0,  // 7: runcoil.v1.Run.status:type_name -> runcoil.v1.RunStatus
+	1,  // 8: runcoil.v1.Run.queued_reason:type_name -> runcoil.v1.QueuedReason
+	2,  // 9: runcoil.v1.Run.source:type_name -> runcoil.v1.RunSource
+	10, // 10: runcoil.v1.Run.failure:type_name -> runcoil.v1.Failure
+	15, // 11: runcoil.v1.Run.created_at:type_name -> google.protobuf.Timestamp
+	15, // 12: runcoil.v1.Run.due_at:type_name -> google.protobuf.Timestamp
+	15, // 13: runcoil.v1.Run.started_at:type_name -> google.protobuf.Timestamp
+	15, // 14: runcoil.v1.Run.finished_at:type_name -> google.protobuf.Timestamp
+	15, // 15: runcoil.v1.Run.next_attempt_at:type_name -> google.protobuf.Timestamp
+	11, // 16: runcoil.v1.Run.steps:type_name -> runcoil.v1.StepRecord
+	5,  // 17: runcoil.v1.ErrorDetail.code:type_name -> runcoil.v1.ErrorCode
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_runcoil_v1_common_proto_init() }
@@ -1315,7 +1268,7 @@ func file_runcoil_v1_common_proto_init() {
 	if File_runcoil_v1_common_proto != nil {
 		return
 	}
-	file_runcoil_v1_common_proto_msgTypes[2].OneofWrappers = []any{
+	file_runcoil_v1_common_proto_msgTypes[1].OneofWrappers = []any{
 		(*Schedule_Cron)(nil),
 		(*Schedule_Every)(nil),
 		(*Schedule_Daily)(nil),
@@ -1326,7 +1279,7 @@ func file_runcoil_v1_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_runcoil_v1_common_proto_rawDesc), len(file_runcoil_v1_common_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   9,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
